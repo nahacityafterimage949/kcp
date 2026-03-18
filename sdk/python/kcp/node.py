@@ -377,3 +377,97 @@ class KCPNode:
             nid = str(uuid4())
             self.store.set_config("node_id", nid)
         return nid
+
+
+    # ─── Export / Import (offline sharing) ─────────────────────
+
+    def export_artifact(self, artifact_id: str, include_content: bool = True) -> dict | None:
+        """
+        Export an artifact as a portable, self-contained JSON dict.
+        Can be saved to file and shared by any means (email, drive, chat).
+        The recipient can import it and verify the signature.
+        """
+        artifact = self.store.get(artifact_id)
+        if not artifact:
+            return None
+
+        export = artifact.to_dict()
+        export["_kcp_export"] = {
+            "version": "1",
+            "exported_by": self.user_id,
+            "exported_at": __import__("datetime").datetime.now(
+                __import__("datetime").timezone.utc
+            ).isoformat(),
+            "node_id": self.node_id,
+            "public_key": self.public_key.hex(),
+        }
+
+        if include_content:
+            content = self.store.get_content(artifact.content_hash)
+            if content:
+                import base64
+                export["_content_b64"] = base64.b64encode(content).decode("utf-8")
+
+        # Include lineage chain
+        chain = self.store.get_lineage(artifact_id)
+        if len(chain) > 1:
+            export["_lineage"] = chain
+
+        return export
+
+    def export_to_file(self, artifact_id: str, output_path: str = "") -> str | None:
+        """Export artifact to a JSON file. Returns the file path."""
+        data = self.export_artifact(artifact_id)
+        if not data:
+            return None
+
+        if not output_path:
+            slug = data.get("title", "artifact").lower()
+            slug = __import__("re").sub(r"[^a-z0-9]+", "-", slug).strip("-")[:50]
+            output_path = str(
+                __import__("pathlib").Path.home() / "Downloads" / f"kcp-{slug}.json"
+            )
+
+        import json
+        __import__("pathlib").Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+        __import__("pathlib").Path(output_path).write_text(
+            json.dumps(data, indent=2, ensure_ascii=False)
+        )
+        return output_path
+
+    def import_from_dict(self, data: dict, verify: bool = True) -> tuple[bool, str]:
+        """
+        Import an artifact from an exported dict.
+        Verifies signature if public key is available.
+        Returns (success, message).
+        """
+        # Check if already exists
+        if self.store.get(data.get("id", "")):
+            return False, f"Artifact already exists: {data['id']}"
+
+        # Verify signature if requested
+        if verify and "_kcp_export" in data:
+            pub_hex = data["_kcp_export"].get("public_key", "")
+            if pub_hex:
+                try:
+                    pub_key = bytes.fromhex(pub_hex)
+                    from .crypto import verify_artifact
+                    clean = {k: v for k, v in data.items() if not k.startswith("_")}
+                    if not verify_artifact(clean, pub_key):
+                        return False, "⚠️ Signature verification FAILED. Artifact may be tampered."
+                except Exception as e:
+                    return False, f"Signature check error: {e}"
+
+        # Import
+        is_new = self.store.import_artifact(data)
+        if is_new:
+            author = data.get("user_id", "unknown")
+            return True, f"✅ Imported: '{data.get('title', 'Untitled')}' by {author}"
+        return False, "Artifact already exists"
+
+    def import_from_file(self, file_path: str, verify: bool = True) -> tuple[bool, str]:
+        """Import artifact from a JSON file."""
+        import json
+        content = __import__("pathlib").Path(file_path).read_text()
+        data = json.loads(content)
+        return self.import_from_dict(data, verify=verify)
