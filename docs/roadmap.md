@@ -1,93 +1,176 @@
-# Roadmap
+# KCP Roadmap
 
-## KCP Protocol Development Roadmap
+**Version:** 0.3  
+**Updated:** March 2026  
+**Author:** Thiago Silva
 
 ---
 
-## Phase 1: Foundation (Weeks 1-4)
-**Goal:** Validate the concept with a working MVP
+## Vision
 
-- [x] Protocol specification v0.1 (SPEC.md)
-- [x] Architecture document (ARCHITECTURE.md)
-- [x] Whitepaper (docs/whitepaper.md)
-- [x] Comparison with prior art (docs/comparison.md)
-- [x] Use cases documentation (docs/use-cases.md)
-- [ ] Python SDK (reference implementation)
-- [ ] libsql storage backend (SQLCipher encryption)
-- [ ] CLI tool (`kcp publish`, `kcp search`, `kcp get`)
-- [ ] 10-user pilot deployment
+KCP becomes the standard protocol for AI-generated knowledge — from personal use to enterprise-wide deployment.
 
-## Phase 2: Discovery & Search (Months 2-3)
-**Goal:** Make knowledge artifacts truly discoverable
+---
 
-- [ ] Full-text search (FTS5)
-- [ ] Vector embeddings integration (semantic search)
-- [ ] Tag-based filtering and aggregation
-- [ ] Search relevance ranking
-- [ ] TypeScript SDK (Node.js + browser)
-- [ ] Go SDK (high-performance server)
-- [ ] REST API server (reference implementation)
+## Current State (v0.2 — March 2026) ✅
 
-## Phase 3: Governance & Security (Month 3-4)
-**Goal:** Enterprise-ready multi-tenant governance
+### Completed
 
+- [x] Protocol specification (SPEC.md)
+- [x] Architecture design (3 operating modes: local, hub, federation)
+- [x] Python SDK (reference implementation)
+  - [x] Embedded node (in-process, no server needed)
+  - [x] Local storage (SQLite + FTS5)
+  - [x] Ed25519 signing and verification
+  - [x] SHA-256 content hashing
+  - [x] Full-text search
+  - [x] Lineage tracking (derivedFrom chains)
+  - [x] Export/Import (offline sharing with signature verification)
+  - [x] CLI (init, publish, search, list, lineage, serve, sync, stats)
+  - [x] Web UI (embedded single-page HTML)
+  - [x] HTTP API (FastAPI) for P2P sharing
+  - [x] Hub backend client (for corporate deployments)
+- [x] Go SDK (store, node, crypto, CLI — build pending)
+- [x] RFC (kcp-001-core.md)
+- [x] Whitepaper
+- [x] Executive presentation
+- [x] AI assistant skill (natural language interface)
+
+---
+
+## Phase 1: Shared Storage Transports (v0.3) 🔜
+
+**Goal:** Enable real-time sharing between users without a dedicated server.
+
+### Google Drive / Dropbox / OneDrive Transport
+
+Use cloud storage the organization already has as a sync layer:
+
+```
+~/.kcp/
+├── kcp.db           (local index — always local)
+└── shared/          (synced folder — Google Drive, Dropbox, etc.)
+    ├── artifacts/
+    │   ├── abc-123.json   (signed metadata)
+    │   └── def-456.json
+    └── content/
+        ├── abc-123.bin    (raw content)
+        └── def-456.bin
+```
+
+**How it works:**
+1. User publishes artifact → SDK writes to `shared/` folder
+2. Cloud storage syncs to all team members automatically
+3. Other users' SDK watches `shared/` folder for new artifacts
+4. Auto-imports new artifacts, verifies signatures, indexes locally
+
+**Config (one line):**
+```bash
+export KCP_SHARED="/Users/alice/Google Drive/My Drive/kcp-shared"
+```
+
+**Tasks:**
+- [ ] `SharedFolderBackend` — watches a folder for new artifacts
+- [ ] File-based artifact format (JSON metadata + binary content)
+- [ ] fswatch / watchdog for real-time detection
+- [ ] Auto-import with signature verification
+- [ ] Conflict resolution (same ID from different authors)
+- [ ] Test with Google Drive, Dropbox, and OneDrive
+
+### S3 / GCS / MinIO Transport
+
+Same concept, but using object storage:
+
+```bash
+export KCP_S3_BUCKET=s3://acme-corp-kcp
+export AWS_PROFILE=default
+```
+
+**Tasks:**
+- [ ] `S3Backend` — read/write artifacts to S3
+- [ ] Polling or S3 event notifications for real-time sync
+- [ ] IAM-based access control
+- [ ] Test with AWS S3 and MinIO (local)
+
+---
+
+## Phase 2: Corporate Hub (v0.4)
+
+**Goal:** Centralized deployment for organizations.
+
+```
+EC2 (t3.small, $15/mo)
+├── FastAPI (REST API)
+├── PostgreSQL (metadata + FTS)
+├── S3 (content storage)
+├── Nginx + Let's Encrypt (HTTPS)
+└── OAuth2 / API Key auth
+```
+
+**Tasks:**
+- [ ] Hub server (FastAPI + PostgreSQL)
+- [ ] Docker Compose (one-command local setup)
+- [ ] Dockerfile for production
+- [ ] OAuth2 / Google Workspace SSO integration
 - [ ] Multi-tenant isolation
-- [ ] Ed25519 signature enforcement
-- [ ] AES-256-GCM at-rest encryption
-- [ ] Visibility tier enforcement (public/org/team/private)
-- [ ] ACL (Access Control List) engine
-- [ ] Audit log (every access recorded)
-- [ ] Key management (tenant keys, user keys)
-- [ ] RBAC integration (OIDC/SAML optional bridge)
+- [ ] ACL (team-level, user-level permissions)
+- [ ] Audit log (who did what, when)
+- [ ] Admin dashboard (Web UI)
+- [ ] Terraform / CloudFormation for AWS deployment
+- [ ] Deploy guide (AWS, GCP, self-hosted)
 
-## Phase 4: Federation (Months 4-6)
-**Goal:** P2P knowledge sharing across organizations
+---
 
-- [ ] IPFS storage backend
-- [ ] libp2p peer discovery (Kademlia DHT)
-- [ ] NAT traversal (relay nodes)
-- [ ] Merkle DAG sync protocol
-- [ ] Content-addressed retrieval
-- [ ] Federated search (query multiple nodes)
-- [ ] KCP Native Format specification (.kcp file)
+## Phase 3: Federation (v0.5)
 
-## Phase 5: Standardization (Months 6-12)
-**Goal:** Establish KCP as an open standard
+**Goal:** Hub-to-hub communication for cross-organization sharing.
 
-- [ ] IETF Internet-Draft submission
-- [ ] W3C Community Group proposal
-- [ ] ArXiv paper submission (cs.AI / cs.NI)
-- [ ] Conference talks (KubeCon, FOSDEM, Strange Loop)
-- [ ] Community governance model
-- [ ] Protocol versioning strategy (v1.0)
+**Tasks:**
+- [ ] Hub-to-hub sync protocol
+- [ ] mTLS authentication between hubs
+- [ ] ACL filtering (control what gets exported/imported)
+- [ ] Cross-org lineage tracking
+- [ ] Federation registry (discover other hubs)
+
+---
+
+## Phase 4: Advanced Features (v0.6)
+
+- [ ] Semantic search (vector embeddings + cosine similarity)
+- [ ] Auto-tagging (LLM-based classification)
+- [ ] Knowledge graph visualization
+- [ ] Artifact versioning (update in place with history)
+- [ ] Notifications (new artifacts matching interests)
+- [ ] API rate limiting and quotas
+
+---
+
+## Phase 5: Ecosystem (v1.0)
+
+- [ ] PyPI package (`pip install kcp`)
+- [ ] npm package (`npm install @kcp/client`)
+- [ ] Go module (`go get github.com/tgosoul2019/kcp`)
+- [ ] VS Code extension
+- [ ] GitHub Action (publish artifacts from CI/CD)
+- [ ] Helm chart for Kubernetes deployment
+- [ ] OpenAPI spec for hub API
 - [ ] Conformance test suite
-- [ ] Logo and branding
-
-## Phase 6: Ecosystem (Year 2+)
-**Goal:** Thriving ecosystem of implementations and integrations
-
-- [ ] MCP bridge (KCP ↔ MCP interop)
-- [ ] IDE extensions (VS Code, JetBrains)
-- [ ] Browser extension (save web analyses to KCP)
-- [ ] Mobile SDK (iOS/Android)
-- [ ] Monitoring dashboard (Grafana-style)
-- [ ] AI agent integrations (ChatGPT plugin, Claude MCP, GitHub Copilot)
-- [ ] Enterprise distribution (Helm chart, Docker Compose)
-- [ ] SaaS offering (managed KCP nodes)
 
 ---
 
-## Success Metrics
+## Priority Matrix
 
-| Phase | Metric | Target |
-|-------|--------|--------|
-| Phase 1 | Working MVP | 10 users |
-| Phase 2 | Search quality | <50ms latency, >80% relevance |
-| Phase 3 | Security audit | Zero critical vulnerabilities |
-| Phase 4 | Federation | 3+ organizations connected |
-| Phase 5 | Standards | IETF draft accepted |
-| Phase 6 | Adoption | 1,000+ GitHub stars, 100+ contributors |
+| Feature | Impact | Effort | Priority |
+|---------|--------|--------|----------|
+| Google Drive transport | 🔥 High (solves sharing today) | Low (1-2 days) | **P0** |
+| S3 transport | High | Medium | P1 |
+| Corporate Hub | High | Medium (2-3 days) | P1 |
+| Docker Compose | High | Low | P1 |
+| OAuth2 / SSO | Medium | Medium | P2 |
+| Federation | Medium | High | P3 |
+| Semantic search | Low | High | P3 |
+| PyPI / npm packages | Medium | Low | P2 |
 
 ---
 
-**Want to help?** See [CONTRIBUTING.md](../CONTRIBUTING.md) for how to get involved.
+**This roadmap is updated as priorities evolve.**

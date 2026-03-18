@@ -1,1 +1,8 @@
-*.egg-info/\n__pycache__/\n*.pyc\n.eggs/
+*.egg-info/
+__pycache__/
+*.pyc
+.eggs/
+*.egg
+dist/
+build/
+.pytest_cache/

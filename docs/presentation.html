@@ -336,6 +336,8 @@
                 <div class="nav-dot" data-section="8"></div>
                 <div class="nav-dot" data-section="9"></div>
                 <div class="nav-dot" data-section="10"></div>
+                <div class="nav-dot" data-section="11"></div>
+                <div class="nav-dot" data-section="10"></div>
             </div>
             <a href="https://github.com/tgosoul2019/kcp" target="_blank" class="nav-repo">⭐ GitHub</a>
         </div>
@@ -761,8 +763,101 @@
         </div>
     </section>
 
-    <!-- ═══════════ 10. CTA ═══════════ -->
-    <section id="section-10" class="cta-section">
+    <!-- ═══════════ 10. Status Atual ═══════════ -->
+    <section id="section-10">
+        <div class="container">
+            <div class="fade-up">
+                <div class="section-label">IMPLEMENTAÇÃO</div>
+                <h2>SDK funcional e testado</h2>
+                <p class="description">O protocolo não é só teoria. Implementamos dois SDKs, testamos publicação, busca, lineage, assinatura e compartilhamento.</p>
+            </div>
+
+            <div class="grid-3 fade-up stagger-1" style="margin-bottom: 2rem;">
+                <div class="card">
+                    <div class="card-icon">🐍</div>
+                    <h3>Python SDK</h3>
+                    <p>Node embedded, SQLite, FTS5, Ed25519, CLI, Web UI, HTTP API. <strong style="color: var(--accent);">Testado ✅</strong></p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🔷</div>
+                    <h3>Go SDK</h3>
+                    <p>Store, Node, Crypto, CLI. Mesma funcionalidade do Python. Pronto pra build.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🔒</div>
+                    <h3>Segurança</h3>
+                    <p>Ed25519 signing, SHA-256 hashing, detecção de adulteração. <strong style="color: var(--accent);">Verificado ✅</strong></p>
+                </div>
+            </div>
+
+            <div class="grid-3 fade-up stagger-2">
+                <div class="card" style="background: var(--accent-soft); border-color: rgba(33,194,94,0.2);">
+                    <h4 style="color: var(--accent); margin-bottom: 0.5rem;">✅ Publish + Search</h4>
+                    <p>3 artifacts publicados, busca FTS em 2ms, assinatura válida verificada</p>
+                </div>
+                <div class="card" style="background: var(--accent-soft); border-color: rgba(33,194,94,0.2);">
+                    <h4 style="color: var(--accent); margin-bottom: 0.5rem;">✅ Lineage Tracking</h4>
+                    <p>Chain root → derivado funcional. Rastreabilidade completa cross-artifacts</p>
+                </div>
+                <div class="card" style="background: var(--accent-soft); border-color: rgba(33,194,94,0.2);">
+                    <h4 style="color: var(--accent); margin-bottom: 0.5rem;">✅ Export / Import</h4>
+                    <p>JSON assinado portátil. Adulteração detectada automaticamente</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════ 11. Deploy Corporativo ═══════════ -->
+    <section id="section-11">
+        <div class="container">
+            <div class="fade-up">
+                <div class="section-label">ENTERPRISE</div>
+                <h2>Três caminhos para produção</h2>
+                <p class="description">Do uso pessoal ao enterprise — escala sem reescrever código.</p>
+            </div>
+
+            <div class="grid-3 fade-up stagger-1">
+                <div class="card">
+                    <div class="card-icon">📁</div>
+                    <h3>Google Drive / Dropbox</h3>
+                    <p>Pasta compartilhada como transport. SDK escreve artifacts na pasta, cloud sync distribui pra todos. <strong>Zero infra.</strong></p>
+                    <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(0,0,0,0.3); border-radius: 8px; font-family: monospace; font-size: 0.8em; color: var(--primary);">
+                        KCP_SHARED="/My Drive/kcp"
+                    </div>
+                </div>
+                <div class="card" style="border-color: var(--primary); border-width: 2px;">
+                    <div class="card-icon">🏢</div>
+                    <h3>Hub Corporativo (EC2)</h3>
+                    <p>FastAPI + PostgreSQL + Nginx. Auth via API Key ou OAuth2. Multi-tenant com ACL e audit log.</p>
+                    <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(0,0,0,0.3); border-radius: 8px; font-family: monospace; font-size: 0.8em; color: var(--primary);">
+                        EC2 t3.small = ~$17/mês
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🌐</div>
+                    <h3>Federation</h3>
+                    <p>Hubs se conectam entre si. Empresa A ↔ Empresa B compartilham knowledge com mTLS + ACL.</p>
+                    <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(0,0,0,0.3); border-radius: 8px; font-family: monospace; font-size: 0.8em; color: var(--text-muted);">
+                        Fase futura (v0.5)
+                    </div>
+                </div>
+            </div>
+
+            <div class="fade-up stagger-2" style="margin-top: 2rem;">
+                <div class="card" style="text-align: center; background: linear-gradient(135deg, rgba(0,217,255,0.08), rgba(123,97,255,0.08));">
+                    <h3 style="margin-bottom: 1rem;">Para o usuário final, a interface é idêntica nos 3 modos</h3>
+                    <p style="font-size: 1.1em; color: var(--text-muted);">
+                        <span style="color: var(--primary);">Assistente AI</span> → "publica essa análise" → 
+                        <span style="color: var(--accent);">SDK detecta o backend</span> → 
+                        Artifact assinado e compartilhado
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════ 12. CTA ═══════════ -->
+    <section id="section-12" class="cta-section">
         <div class="container">
             <div class="fade-up">
                 <div class="section-label" style="display: inline-block;">PRÓXIMOS PASSOS</div>
