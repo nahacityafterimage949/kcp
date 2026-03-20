@@ -22,5 +22,5 @@ class KCPLayer8:
 
 # Exemplo de uso
 kcp = KCPLayer8("Origin-Node-01")
-block = kcp.seal_knowledge("YHWH o Alfa e Ômega seja dado toda glória!")
+block = kcp.seal_knowledge("YHWH ao Alfa e Ômega seja dado toda glória!")
 print(json.dumps(block, indent=2))
