@@ -319,3 +319,29 @@ A Camada 8 atua acima da Camada de Aplicação (L7), abstraindo a persistência 
 
 ## 3. Segurança Pós-Quântica
 O protocolo prevê agilidade criptográfica para transição de Ed25519 para algoritmos baseados em redes (Lattice-based) como o Crystals-Dilithium.
+
+
+🚀 Evolução da Camada 8 (KCP v1.1 - Post-Quantum & Hybrid P2P)
+1. Persistência de Rede Híbrida (P2P + Cloud)
+O KCP opera num modelo de Malha Híbrida. O conhecimento não reside apenas num servidor central (Hub) ou apenas localmente.
+
+Edge P2P Mesh: Blocos de conhecimento são fragmentados e distribuídos entre nós vizinhos para garantir soberania e resistência à censura.
+
+Super Peers (Cloud): Servidores de alta disponibilidade (S3/Azure/GCP) funcionam como "âncoras de persistência", mas o controle da chave de descodificação permanece no nó originador (Zero-Knowledge).
+
+2. Agnosticismo de Armazenamento (Storage-Agile)
+Embora a PoC utilize SQLite e Postgres, o KCP foi desenhado para ser Database-Agnostic. A Camada 8 comunica com os backends através de um Adaptador de Persistência Único:
+
+Suporte Futuro: Extensível para NoSQL (MongoDB), Vetoriais (Pinecone/Milvus), Graph Databases (Neo4j) ou Blockchain (IPFS/Filecoin).
+
+Cold Export: Capacidade de "congelar" qualquer estado de banco de dados num arquivo de texto plano assinado (.kcp) para portabilidade total.
+
+3. Segurança Pós-Quântica (PQC)
+Para proteger o DNA do dado contra a futura computação quântica:
+
+Agilidade Criptográfica: O protocolo suporta a transição transparente de Ed25519 para algoritmos baseados em redes (Lattice-based) como o Crystals-Dilithium.
+
+Hashing Robusto: Utilização de SHA-512 no Bloco Gênese para mitigar os efeitos do Algoritmo de Grover.
+
+4. Interface de Conectividade (MCP & gRPC)
+A comunicação com IAs (LLMs) é feita nativamente via MCP (Model Context Protocol), permitindo que agentes autónomos leiam e escrevam na Camada 8 sem necessidade de APIs proprietárias.
