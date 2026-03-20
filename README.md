@@ -124,6 +124,7 @@ All modes use the **same API**. The backend is transparent to the user.
 | [llms.txt](llms.txt) | LLM indexing manifest ([llmstxt.org](https://llmstxt.org/) convention) |
 | [RFC-001-CORE.md](RFC-001-CORE.md) | Formal RFC (root) |
 | [RFC KCP-001](rfcs/kcp-001-core.md) | Formal RFC (detailed) |
+| [RFC KCP-002](rfcs/kcp-002-mcp-bridge.md) | KCP ↔ MCP Bridge — persistent artifacts as MCP context |
 | [Whitepaper](docs/whitepaper.md) | Academic paper |
 | [Comparison](docs/comparison.md) | vs Semantic Web, MCP, etc. |
 | [Use Cases](docs/use-cases.md) | 10 real-world use cases |

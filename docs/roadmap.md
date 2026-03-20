@@ -62,24 +62,19 @@ Expose KCP as a Model Context Protocol server so AI assistants can call it direc
 
 ```
 Claude / Cursor / Windsurf
-      ↓ MCP protocol
-  KCP MCP Server (Python)
-      ↓ KCPNode API
-    SQLite (local)
+      ↓ MCP protocol (standard Anthropic)
+  KCP-MCP Bridge (RFC KCP-002)
+      ↓ KCPNode API          ↑ auto-publish
+    SQLite (local)        KCP Artifacts
 ```
 
-**Tools exposed:**
-- `kcp_publish` — publish a knowledge artifact
-- `kcp_search` — semantic search across artifacts
-- `kcp_get` — retrieve artifact by ID
-- `kcp_lineage` — trace lineage chain
+**4th operating mode: `bridge`** (alongside Local / Hub / Federation)
+- Injects KCP artifacts as MCP context → LLM "remembers" past knowledge
+- Captures MCP outputs → KCP artifacts with full lineage
+- New `kcp://` URI scheme for global artifact addressing
+- New lineage fields: `mcp_session_id`, `mcp_tool_call`
 
-**Tasks:**
-- [ ] `mcp-server/` Python package with FastAPI + MCP protocol
-- [ ] `kcp_publish`, `kcp_search`, `kcp_get`, `kcp_lineage` tools
-- [ ] Claude Desktop config (`claude_desktop_config.json`)
-- [ ] Cursor / Windsurf integration guide
-- [ ] Docker image (`kcp-mcp-server`)
+**RFC:** [rfcs/kcp-002-mcp-bridge.md](../rfcs/kcp-002-mcp-bridge.md)
 
 ### New SDKs
 
