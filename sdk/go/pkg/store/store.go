@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/tgosoul2019/kcp/sdk/go/pkg/models"
+	"github.com/kcp-protocol/kcp/sdk/go/pkg/models"
 
 	_ "github.com/mattn/go-sqlite3"
 )

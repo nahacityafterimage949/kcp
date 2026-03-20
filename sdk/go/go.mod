@@ -1,4 +1,4 @@
-module github.com/tgosoul2019/kcp/sdk/go
+module github.com/kcp-protocol/kcp/sdk/go
 
 go 1.22
 

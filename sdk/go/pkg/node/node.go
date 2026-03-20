@@ -9,9 +9,9 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	kcpcrypto "github.com/tgosoul2019/kcp/sdk/go/pkg/crypto"
-	"github.com/tgosoul2019/kcp/sdk/go/pkg/models"
-	"github.com/tgosoul2019/kcp/sdk/go/pkg/store"
+	kcpcrypto "github.com/kcp-protocol/kcp/sdk/go/pkg/crypto"
+	"github.com/kcp-protocol/kcp/sdk/go/pkg/models"
+	"github.com/kcp-protocol/kcp/sdk/go/pkg/store"
 )
 
 // KCPNode is an embedded KCP node. Runs in-process, stores locally.
