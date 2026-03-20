@@ -4,943 +4,533 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KCP — Knowledge Context Protocol</title>
+    <meta name="description" content="An open protocol for AI knowledge governance, lineage tracking, and semantic discovery. Layer 8 for the AI era.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-dark: #0A0E1A;
-            --bg-darker: #060912;
-            --bg-card: rgba(255,255,255,0.05);
-            --bg-card-hover: rgba(255,255,255,0.08);
-            --text: #F0F0F5;
-            --text-muted: #8B8FA3;
-            --text-dim: #5A5E72;
-            --primary: #00D9FF;
-            --primary-soft: rgba(0, 217, 255, 0.15);
-            --secondary: #7B61FF;
-            --secondary-soft: rgba(123, 97, 255, 0.15);
-            --accent: #21C25E;
-            --accent-soft: rgba(33, 194, 94, 0.15);
-            --danger: #FF5757;
-            --danger-soft: rgba(255, 87, 87, 0.15);
-            --warning: #F5A623;
-            --border: rgba(255,255,255,0.06);
-            --border-hover: rgba(0, 217, 255, 0.3);
+            --bg:        #FFFFFF;
+            --bg-soft:   #F7F8FA;
+            --bg-card:   #FFFFFF;
+            --border:    #E5E7EB;
+            --border-strong: #D1D5DB;
+            --text:      #111827;
+            --text-2:    #374151;
+            --text-muted:#6B7280;
+            --text-dim:  #9CA3AF;
+            --blue:      #2563EB;
+            --blue-soft: #EFF6FF;
+            --blue-mid:  #BFDBFE;
+            --green:     #16A34A;
+            --green-soft:#F0FDF4;
+            --green-mid: #BBF7D0;
+            --amber:     #D97706;
+            --amber-soft:#FFFBEB;
+            --red:       #DC2626;
+            --red-soft:  #FEF2F2;
+            --purple:    #7C3AED;
+            --purple-soft:#F5F3FF;
+            --radius:    12px;
+            --radius-lg: 20px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow:    0 4px 16px rgba(0,0,0,0.08);
+            --shadow-lg: 0 16px 48px rgba(0,0,0,0.10);
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg-dark);
-            color: var(--text);
-            line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
+        /* NAV */
+        nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(255,255,255,0.92); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
+        nav .container { display: flex; align-items: center; justify-content: space-between; height: 56px; }
+        .brand { font-size: 1rem; font-weight: 800; color: var(--blue); letter-spacing: -0.02em; text-decoration: none; }
+        .brand span { color: var(--text-muted); font-weight: 400; }
+        .nav-links { display: flex; align-items: center; gap: 0.25rem; }
+        .nav-link { font-size: 0.875rem; color: var(--text-muted); text-decoration: none; padding: 0.375rem 0.75rem; border-radius: 6px; font-weight: 500; transition: all 0.15s; }
+        .nav-link:hover { color: var(--text); background: var(--bg-soft); }
+        .nav-cta { font-size: 0.875rem; font-weight: 600; color: #fff; background: var(--blue); text-decoration: none; padding: 0.5rem 1.125rem; border-radius: 8px; margin-left: 0.5rem; transition: all 0.15s; }
+        .nav-cta:hover { background: #1D4ED8; transform: translateY(-1px); }
 
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+        /* SECTIONS */
+        section { padding: 6rem 0; }
+        section:nth-child(even) { background: var(--bg-soft); }
 
-        section {
-            min-height: 100vh;
-            padding: 6rem 0 4rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
+        /* HERO */
+        .hero-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--blue-soft); color: var(--blue); border: 1px solid var(--blue-mid); border-radius: 50px; padding: 0.375rem 1rem; font-size: 0.8125rem; font-weight: 600; margin-bottom: 2rem; }
+        .hero-badge::before { content: ''; width: 7px; height: 7px; background: var(--blue); border-radius: 50%; }
+        h1 { font-size: clamp(2.5rem, 5vw, 3.75rem); font-weight: 900; line-height: 1.1; letter-spacing: -0.03em; color: var(--text); margin-bottom: 1.5rem; }
+        h1 em { font-style: normal; color: var(--blue); }
+        .hero-sub { font-size: clamp(1rem, 2vw, 1.2rem); color: var(--text-muted); max-width: 680px; line-height: 1.75; margin-bottom: 2.5rem; }
+        .hero-sub strong { color: var(--text-2); font-weight: 600; }
+        .hero-buttons { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 3.5rem; }
+        .btn-primary { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--blue); color: #fff; text-decoration: none; padding: 0.8125rem 1.875rem; border-radius: 10px; font-weight: 700; font-size: 1rem; transition: all 0.15s; box-shadow: 0 4px 16px rgba(37,99,235,0.28); }
+        .btn-primary:hover { background: #1D4ED8; transform: translateY(-1px); }
+        .btn-secondary { display: inline-flex; align-items: center; gap: 0.5rem; background: transparent; color: var(--text-2); text-decoration: none; padding: 0.8125rem 1.875rem; border-radius: 10px; font-weight: 600; font-size: 1rem; border: 1.5px solid var(--border-strong); transition: all 0.15s; }
+        .btn-secondary:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-soft); }
 
-        /* ─── Navigation ─── */
-        nav {
-            position: fixed; top: 0; left: 0; right: 0;
-            background: rgba(10, 14, 26, 0.92);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border);
-            padding: 0.875rem 0;
-            z-index: 1000;
-        }
-        nav .container { display: flex; align-items: center; justify-content: space-between; }
+        /* STATS */
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; }
+        .stat-card { background: var(--bg-soft); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; text-align: center; }
+        .stat-num { font-size: 2rem; font-weight: 900; color: var(--blue); letter-spacing: -0.03em; line-height: 1; }
+        .stat-lbl { font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.375rem; font-weight: 500; }
 
-        .brand {
-            font-size: 1.125rem; font-weight: 800;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            background-clip: text; letter-spacing: -0.02em;
-        }
-        .brand span { font-weight: 400; -webkit-text-fill-color: var(--text-muted); color: var(--text-muted); }
+        /* SECTION HEADER */
+        .sec-eyebrow { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--blue); margin-bottom: 0.875rem; }
+        h2 { font-size: clamp(1.75rem, 3vw, 2.5rem); font-weight: 800; letter-spacing: -0.025em; line-height: 1.2; margin-bottom: 1rem; color: var(--text); }
+        .sec-desc { font-size: 1.0625rem; color: var(--text-muted); max-width: 700px; line-height: 1.75; margin-bottom: 2.5rem; }
 
-        .nav-dots { display: flex; gap: 0.625rem; }
-        .nav-dot {
-            width: 7px; height: 7px; border-radius: 50%;
-            background: rgba(255,255,255,0.15); cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .nav-dot.active { background: var(--primary); transform: scale(1.6); box-shadow: 0 0 12px var(--primary); }
-        .nav-dot:hover:not(.active) { background: rgba(255,255,255,0.3); }
+        /* CARDS */
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; }
+        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.875rem; box-shadow: var(--shadow-sm); transition: all 0.2s; }
+        .card:hover { box-shadow: var(--shadow); transform: translateY(-2px); border-color: var(--blue-mid); }
+        .card-emoji { font-size: 2rem; margin-bottom: 1rem; }
+        .card-title { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .card-text { font-size: 0.9375rem; color: var(--text-muted); line-height: 1.65; }
+        .card-badge { display: inline-block; font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; padding: 0.2rem 0.6rem; border-radius: 4px; margin-bottom: 0.75rem; }
+        .badge-blue   { background: var(--blue-soft);   color: var(--blue); }
+        .badge-green  { background: var(--green-soft);  color: var(--green); }
+        .badge-amber  { background: var(--amber-soft);  color: var(--amber); }
+        .badge-red    { background: var(--red-soft);    color: var(--red); }
+        .badge-purple { background: var(--purple-soft); color: var(--purple); }
 
-        .nav-repo {
-            font-size: 0.8125rem; color: var(--text-muted);
-            text-decoration: none; border: 1px solid var(--border);
-            padding: 0.375rem 0.875rem; border-radius: 6px;
-            transition: all 0.3s ease;
-        }
-        .nav-repo:hover { border-color: var(--primary); color: var(--primary); }
+        /* LAYERS */
+        .layer-stack { margin: 2rem 0; display: flex; flex-direction: column; gap: 0.625rem; }
+        .layer { border: 1.5px solid var(--border); border-radius: 10px; padding: 1.125rem 1.5rem; background: var(--bg-soft); }
+        .layer.highlight { border-color: var(--blue); background: var(--blue-soft); box-shadow: 0 0 0 4px rgba(37,99,235,0.08); }
+        .layer-label { font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--blue); margin-bottom: 0.25rem; }
+        .layer-title-sm { font-size: 0.9375rem; font-weight: 700; color: var(--text); }
+        .layer-desc-sm { font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.125rem; }
 
-        /* ─── Typography ─── */
-        h1 {
-            font-size: clamp(2.5rem, 5vw, 4.25rem); font-weight: 900;
-            line-height: 1.08; margin-bottom: 1.5rem; letter-spacing: -0.03em;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 50%, var(--primary) 100%);
-            background-size: 200% auto;
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: gradient-shift 6s ease infinite;
-        }
-        @keyframes gradient-shift { 0%,100%{background-position:0% center} 50%{background-position:100% center} }
+        /* CODE */
+        .code-block { background: #1E293B; border-radius: var(--radius); padding: 1.5rem; overflow-x: auto; margin-top: 1.5rem; }
+        .code-block pre { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.8125rem; line-height: 1.7; color: #CBD5E1; }
+        .code-key { color: #93C5FD; }
+        .code-val { color: #86EFAC; }
+        .code-str { color: #FCA5A5; }
 
-        h2 {
-            font-size: clamp(1.875rem, 3.5vw, 2.75rem);
-            font-weight: 800; margin-bottom: 1.25rem;
-            line-height: 1.15; letter-spacing: -0.02em;
-        }
+        /* TABLE */
+        .table-wrap { overflow-x: auto; margin-top: 2rem; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: var(--bg-soft); font-size: 0.8125rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; padding: 0.875rem 1.25rem; text-align: left; border-bottom: 2px solid var(--border); }
+        td { padding: 0.875rem 1.25rem; border-bottom: 1px solid var(--border); font-size: 0.9375rem; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: var(--bg-soft); }
+        td:first-child { font-weight: 600; color: var(--text-2); }
+        .yes { color: var(--green); font-weight: 700; }
+        .no  { color: var(--red); }
 
-        .subtitle {
-            font-size: clamp(1.125rem, 2vw, 1.375rem);
-            color: var(--text-muted); margin-bottom: 3rem;
-            max-width: 780px; margin-left: auto; margin-right: auto;
-            line-height: 1.7;
-        }
+        /* SDK */
+        .sdk-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-top: 2rem; }
+        .sdk-card { border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.75rem; background: var(--bg-card); box-shadow: var(--shadow-sm); }
+        .sdk-card.done { border-color: var(--green-mid); background: var(--green-soft); }
+        .sdk-card.wip  { border-color: var(--blue-mid);  background: var(--blue-soft); }
+        .sdk-icon { font-size: 2rem; margin-bottom: 0.875rem; }
+        .sdk-name { font-size: 1.0625rem; font-weight: 800; margin-bottom: 0.25rem; }
+        .sdk-tests { font-size: 0.875rem; font-weight: 700; margin-bottom: 0.75rem; }
+        .sdk-tests.green { color: var(--green); }
+        .sdk-tests.blue  { color: var(--blue); }
+        .sdk-detail { font-size: 0.8125rem; color: var(--text-muted); line-height: 1.6; }
+        .sdk-detail code { background: rgba(0,0,0,0.06); padding: 0.1em 0.4em; border-radius: 3px; font-family: monospace; font-size: 0.9em; }
 
-        .section-label {
-            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.15em;
-            color: var(--primary); font-weight: 700; margin-bottom: 1.25rem;
-            position: relative; padding-left: 1.25rem;
-        }
-        .section-label::before {
-            content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
-            width: 3px; height: 16px; background: var(--primary); border-radius: 2px;
-        }
+        /* ROI */
+        .roi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2rem; }
+        .roi-box { border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.875rem; background: var(--bg-card); }
+        .roi-box.before { border-color: #FECACA; }
+        .roi-box.after  { border-color: var(--green-mid); }
+        .roi-box h3 { font-size: 1rem; font-weight: 700; margin-bottom: 1.25rem; }
+        .roi-box.before h3 { color: var(--red); }
+        .roi-box.after  h3 { color: var(--green); }
+        .roi-row { display: flex; justify-content: space-between; padding: 0.625rem 0; border-bottom: 1px solid var(--border); font-size: 0.9375rem; }
+        .roi-row:last-child { border-bottom: none; }
+        .roi-row span:first-child { color: var(--text-muted); }
+        .roi-row .bad  { color: var(--red);   font-weight: 700; }
+        .roi-row .good { color: var(--green); font-weight: 700; }
+        .roi-highlight { grid-column: 1/-1; background: var(--blue-soft); border: 1.5px solid var(--blue-mid); border-radius: var(--radius-lg); padding: 2rem; text-align: center; }
+        .roi-big { font-size: 3.5rem; font-weight: 900; color: var(--blue); line-height: 1; letter-spacing: -0.04em; }
+        .roi-big-lbl { font-size: 0.9375rem; color: var(--text-muted); margin-top: 0.375rem; }
 
-        .description {
-            font-size: 1.0625rem; color: var(--text-muted);
-            margin-bottom: 3rem; max-width: 780px; line-height: 1.7;
-        }
+        /* ROADMAP */
+        .roadmap-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-top: 2rem; }
+        .roadmap-card { border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.875rem; background: var(--bg-card); }
+        .roadmap-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 1rem; }
+        .roadmap-card ul { list-style: none; font-size: 0.9rem; color: var(--text-muted); line-height: 2; }
 
-        /* ─── Hero ─── */
-        .hero { text-align: center; position: relative; overflow: hidden; }
-        .hero::before, .hero::after {
-            content: ''; position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.2;
-            animation: pulse-glow 5s ease-in-out infinite;
-        }
-        .hero::before { width: 600px; height: 600px; background: var(--primary); top: -250px; right: -150px; }
-        .hero::after { width: 500px; height: 500px; background: var(--secondary); bottom: -200px; left: -150px; animation-delay: 2.5s; }
-        @keyframes pulse-glow { 0%,100%{transform:scale(1);opacity:0.2} 50%{transform:scale(1.15);opacity:0.3} }
-        .hero-content { position: relative; z-index: 1; }
+        /* PRIOR ART */
+        .prior-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; margin-top: 2rem; }
+        .prior-card { border: 1.5px solid var(--border); border-radius: var(--radius); padding: 1.5rem; background: var(--bg-card); }
+        .prior-name { font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem; }
+        .prior-year { font-size: 0.75rem; color: var(--text-dim); margin-bottom: 0.875rem; }
+        .prior-row  { font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.25rem; }
+        .prior-row strong { color: var(--text-2); }
 
-        /* ─── Stat Cards ─── */
-        .stats-row {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 1.5rem; margin-top: 3rem;
-        }
-        .stat-card {
-            background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: 16px; padding: 1.75rem 1.25rem; text-align: center;
-            transition: all 0.3s ease;
-        }
-        .stat-card:hover { transform: translateY(-4px); border-color: var(--border-hover); box-shadow: 0 8px 32px rgba(0,217,255,0.12); }
-        .stat-number {
-            font-size: 2.5rem; font-weight: 900; line-height: 1;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            background-clip: text; margin-bottom: 0.5rem;
-        }
-        .stat-label { color: var(--text-muted); font-size: 0.8125rem; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 500; }
+        /* DISCLAIMER */
+        .disclaimer { background: var(--amber-soft); border: 1px solid #FDE68A; border-radius: var(--radius); padding: 1.125rem 1.5rem; font-size: 0.875rem; color: var(--text-2); line-height: 1.65; margin-top: 2rem; }
 
-        /* ─── Cards Grid ─── */
-        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 1.5rem; margin-top: 2.5rem; }
-        .card {
-            background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: 16px; padding: 2rem; transition: all 0.3s ease;
-        }
-        .card:hover { transform: translateY(-4px); border-color: var(--border-hover); box-shadow: 0 8px 32px rgba(0,217,255,0.1); }
-        .card-icon { font-size: 2.5rem; margin-bottom: 1rem; }
-        .card-title { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.625rem; letter-spacing: -0.01em; }
-        .card-text { color: var(--text-muted); font-size: 0.9375rem; line-height: 1.6; }
-        .card-stat {
-            margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);
-            font-size: 1.75rem; font-weight: 900; color: var(--primary);
-        }
-        .card-tag {
-            display: inline-block; font-size: 0.6875rem; font-weight: 600;
-            text-transform: uppercase; letter-spacing: 0.08em;
-            padding: 0.25rem 0.625rem; border-radius: 4px; margin-bottom: 0.75rem;
-        }
-        .tag-danger { background: var(--danger-soft); color: var(--danger); }
-        .tag-warning { background: rgba(245,166,35,0.15); color: var(--warning); }
-        .tag-accent { background: var(--accent-soft); color: var(--accent); }
-        .tag-primary { background: var(--primary-soft); color: var(--primary); }
+        /* CTA */
+        .cta-inner { background: linear-gradient(135deg, var(--blue) 0%, #4F46E5 100%); border-radius: var(--radius-lg); padding: 4rem 3rem; text-align: center; box-shadow: var(--shadow-lg); }
+        .cta-inner h2 { color: #fff; margin-bottom: 1rem; }
+        .cta-inner .sec-desc { color: rgba(255,255,255,0.78); margin-left: auto; margin-right: auto; }
+        .btn-white { display: inline-flex; align-items: center; gap: 0.5rem; background: #fff; color: var(--blue); text-decoration: none; padding: 0.875rem 2rem; border-radius: 10px; font-weight: 700; font-size: 1rem; transition: all 0.15s; box-shadow: var(--shadow); margin: 0 0.5rem 0.75rem; }
+        .btn-white:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+        .btn-outline-white { display: inline-flex; align-items: center; gap: 0.5rem; background: transparent; color: #fff; text-decoration: none; padding: 0.875rem 2rem; border-radius: 10px; font-weight: 600; font-size: 1rem; border: 1.5px solid rgba(255,255,255,0.4); transition: all 0.15s; margin: 0 0.5rem 0.75rem; }
+        .btn-outline-white:hover { background: rgba(255,255,255,0.1); }
 
-        /* ─── Architecture ─── */
-        .arch-block {
-            background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: 16px; padding: 2.5rem; margin: 2.5rem 0;
-        }
-        .layer {
-            border: 2px solid var(--secondary); border-radius: 10px;
-            padding: 1.25rem 1.5rem; margin-bottom: 0.75rem; position: relative;
-            background: var(--secondary-soft);
-        }
-        .layer.new {
-            background: var(--primary-soft); border-color: var(--primary);
-            box-shadow: 0 0 40px rgba(0,217,255,0.15);
-        }
-        .layer-number {
-            position: absolute; top: -10px; left: 1.25rem;
-            background: var(--bg-dark); padding: 0 0.625rem;
-            font-size: 0.75rem; font-weight: 700; color: var(--primary);
-            letter-spacing: 0.05em;
-        }
-        .layer-title { font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem; }
-        .layer-desc { color: var(--text-muted); font-size: 0.875rem; }
+        /* FOOTER */
+        footer { background: var(--text); color: rgba(255,255,255,0.5); padding: 2.5rem 0; text-align: center; font-size: 0.875rem; }
+        footer a { color: rgba(255,255,255,0.7); text-decoration: none; }
+        footer a:hover { color: #fff; }
 
-        /* ─── Prior Art Table ─── */
-        .prior-art-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem; margin-top: 2.5rem;
-        }
-        .prior-card {
-            background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: 16px; padding: 1.75rem; position: relative;
-            transition: all 0.3s ease;
-        }
-        .prior-card:hover { border-color: var(--border-hover); }
-        .prior-name { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
-        .prior-year { font-size: 0.75rem; color: var(--text-dim); }
-        .prior-does { color: var(--accent); font-size: 0.875rem; margin: 0.75rem 0 0.5rem; font-weight: 600; }
-        .prior-gap { color: var(--danger); font-size: 0.875rem; font-weight: 600; }
-        .prior-detail { color: var(--text-muted); font-size: 0.8125rem; line-height: 1.5; margin-bottom: 0.25rem; }
+        /* ANIMATIONS */
+        .fade-up { opacity: 0; transform: translateY(24px); transition: opacity 0.55s ease, transform 0.55s ease; }
+        .fade-up.visible { opacity: 1; transform: none; }
+        .d1 { transition-delay: 0.08s; } .d2 { transition-delay: 0.16s; } .d3 { transition-delay: 0.24s; } .d4 { transition-delay: 0.32s; }
 
-        /* ─── Comparison Table ─── */
-        .comparison-table { width: 100%; border-collapse: collapse; margin: 2rem 0; }
-        .comparison-table th, .comparison-table td { padding: 1rem 1.25rem; text-align: left; border-bottom: 1px solid var(--border); }
-        .comparison-table th { font-weight: 700; color: var(--primary); font-size: 0.8125rem; text-transform: uppercase; letter-spacing: 0.05em; }
-        .comparison-table tr:hover { background: rgba(255,255,255,0.02); }
-        .comparison-table td:first-child { font-weight: 600; }
-        .check { color: var(--accent); font-size: 1.25rem; }
-        .cross { color: var(--danger); font-size: 1.25rem; }
-
-        /* ─── ROI Section ─── */
-        .roi-container {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2.5rem;
-        }
-        .roi-box {
-            background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: 16px; padding: 2rem;
-        }
-        .roi-box.before { border-color: rgba(255,87,87,0.3); }
-        .roi-box.after { border-color: rgba(33,194,94,0.3); box-shadow: 0 0 30px rgba(33,194,94,0.08); }
-        .roi-box h3 { font-size: 1.125rem; font-weight: 700; margin-bottom: 1.25rem; }
-        .roi-box.before h3 { color: var(--danger); }
-        .roi-box.after h3 { color: var(--accent); }
-        .roi-item { display: flex; justify-content: space-between; padding: 0.625rem 0; border-bottom: 1px solid var(--border); }
-        .roi-item:last-child { border-bottom: none; }
-        .roi-label { color: var(--text-muted); font-size: 0.9375rem; }
-        .roi-value { font-weight: 700; font-size: 0.9375rem; }
-        .roi-value.bad { color: var(--danger); }
-        .roi-value.good { color: var(--accent); }
-
-        .roi-highlight {
-            background: linear-gradient(135deg, var(--primary-soft), var(--secondary-soft));
-            border: 1px solid var(--border-hover); border-radius: 16px;
-            padding: 2rem; text-align: center; margin-top: 2rem;
-            grid-column: 1 / -1;
-        }
-        .roi-big { font-size: 3.5rem; font-weight: 900; color: var(--primary); line-height: 1; }
-        .roi-big-label { color: var(--text-muted); font-size: 0.9375rem; margin-top: 0.5rem; }
-
-        /* ─── Timeline ─── */
-        .timeline { position: relative; padding: 2rem 0; }
-        .timeline-item { display: grid; grid-template-columns: 100px 1fr; gap: 2rem; margin-bottom: 2.5rem; position: relative; }
-        .timeline-date { text-align: right; font-weight: 700; color: var(--primary); font-size: 1rem; padding-top: 0.25rem; }
-        .timeline-content {
-            background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: 14px; padding: 1.75rem; position: relative;
-        }
-        .timeline-content::before {
-            content: ''; position: absolute; left: -2rem; top: 1.5rem;
-            width: 10px; height: 10px; background: var(--primary);
-            border-radius: 50%; box-shadow: 0 0 16px var(--primary);
-        }
-        .timeline-title { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.5rem; }
-        .timeline-desc { color: var(--text-muted); font-size: 0.9375rem; line-height: 1.6; }
-
-        /* ─── Roadmap Cards ─── */
-        .roadmap-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 2.5rem; }
-        .roadmap-card {
-            background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: 16px; padding: 2rem; transition: all 0.3s ease;
-        }
-        .roadmap-card:hover { transform: translateY(-3px); border-color: var(--border-hover); }
-        .roadmap-card h3 { font-size: 1.125rem; margin-bottom: 1rem; }
-        .roadmap-card ul { list-style: none; padding: 0; color: var(--text-muted); line-height: 2; font-size: 0.9375rem; }
-        .roadmap-card .card-stat { font-size: 1.5rem; }
-
-        /* ─── CTA ─── */
-        .cta-section { text-align: center; }
-        .cta-button {
-            display: inline-block; padding: 1.125rem 2.5rem;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white; text-decoration: none; border-radius: 50px;
-            font-weight: 700; font-size: 1.0625rem; transition: all 0.3s ease;
-            box-shadow: 0 8px 32px rgba(0,217,255,0.25);
-        }
-        .cta-button:hover { transform: translateY(-2px); box-shadow: 0 12px 48px rgba(0,217,255,0.35); }
-        .cta-button + .cta-button { margin-left: 1rem; background: transparent; border: 2px solid var(--primary); box-shadow: none; }
-        .cta-button + .cta-button:hover { background: var(--primary-soft); }
-
-        /* ─── Animations ─── */
-        .fade-up { opacity: 0; transform: translateY(30px); transition: all 0.6s ease; }
-        .fade-up.visible { opacity: 1; transform: translateY(0); }
-        .stagger-1 { transition-delay: 0.1s; } .stagger-2 { transition-delay: 0.2s; }
-        .stagger-3 { transition-delay: 0.3s; } .stagger-4 { transition-delay: 0.4s; }
-
-        /* ─── Responsive ─── */
-        @media (max-width: 900px) {
-            section { padding: 4rem 0 3rem; min-height: auto; }
-            .cards-grid, .prior-art-grid, .roadmap-grid { grid-template-columns: 1fr; }
-            .roi-container { grid-template-columns: 1fr; }
-            .timeline-item { grid-template-columns: 1fr; }
-            .timeline-date { text-align: left; }
-            .timeline-content::before { display: none; }
-            .nav-repo { display: none; }
-            .cta-button + .cta-button { margin-left: 0; margin-top: 1rem; display: block; }
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .stats-row, .sdk-grid, .roi-grid, .roadmap-grid, .prior-grid { grid-template-columns: 1fr; }
+            .roi-grid .roi-highlight { grid-column: auto; }
+            .hero-buttons { flex-direction: column; }
+            .nav-links { display: none; }
+            .cta-inner { padding: 2.5rem 1.5rem; }
         }
     </style>
 </head>
 <body>
 
-    <nav>
-        <div class="container">
-            <div class="brand">KCP <span>Protocol</span></div>
-            <div class="nav-dots">
-                <div class="nav-dot active" data-section="0"></div>
-                <div class="nav-dot" data-section="1"></div>
-                <div class="nav-dot" data-section="2"></div>
-                <div class="nav-dot" data-section="3"></div>
-                <div class="nav-dot" data-section="4"></div>
-                <div class="nav-dot" data-section="5"></div>
-                <div class="nav-dot" data-section="6"></div>
-                <div class="nav-dot" data-section="7"></div>
-                <div class="nav-dot" data-section="8"></div>
-                <div class="nav-dot" data-section="9"></div>
-                <div class="nav-dot" data-section="10"></div>
-                <div class="nav-dot" data-section="11"></div>
-                <div class="nav-dot" data-section="10"></div>
-            </div>
-                <a href="https://github.com/kcp-protocol/kcp" target="_blank" class="nav-repo">⭐ Star on GitHub</a>
+<nav>
+    <div class="container">
+        <a href="#" class="brand">KCP <span>Protocol</span></a>
+        <div class="nav-links">
+            <a href="#problem" class="nav-link">Problema</a>
+            <a href="#protocol" class="nav-link">Protocolo</a>
+            <a href="#sdks" class="nav-link">SDKs</a>
+            <a href="#roadmap" class="nav-link">Roadmap</a>
+            <a href="https://github.com/kcp-protocol/kcp" target="_blank" class="nav-cta">⭐ GitHub</a>
         </div>
-    </nav>
+    </div>
+</nav>
 
-    <!-- ═══════════ 0. HERO ═══════════ -->
-    <section class="hero" id="section-0">
-        <div class="container">
-            <div class="hero-content fade-up">
-                <h1>Knowledge Context<br>Protocol</h1>
-                <p class="subtitle">
-                    O modelo OSI tem 7 camadas. TCP/IP tem 4. Mas <strong>nenhum deles resolve governança, descoberta e persistência de conhecimento gerado por IA</strong>. Propomos uma nova camada de abstração: a <strong>Camada 8</strong>.
-                </p>
-                <div class="stats-row">
-                    <div class="stat-card fade-up stagger-1">
-                        <div class="stat-number">40-60%</div>
-                        <div class="stat-label">Trabalho analítico duplicado</div>
-                    </div>
-                    <div class="stat-card fade-up stagger-2">
-                        <div class="stat-number">0%</div>
-                        <div class="stat-label">Taxa de reuso de insights</div>
-                    </div>
-                    <div class="stat-card fade-up stagger-3">
-                        <div class="stat-number">90%</div>
-                        <div class="stat-label">Perdido em 30 dias</div>
-                    </div>
-                    <div class="stat-card fade-up stagger-4">
-                        <div class="stat-number">$0</div>
-                        <div class="stat-label">Investido em resolver isso</div>
-                    </div>
-                </div>
-            </div>
+<!-- HERO -->
+<section id="hero" style="padding-top: 7rem; background: var(--bg);">
+    <div class="container">
+        <div class="hero-badge fade-up">Open Protocol · Layer 8 · 2026</div>
+        <h1 class="fade-up d1">Knowledge Context<br><em>Protocol</em></h1>
+        <p class="hero-sub fade-up d2">
+            O modelo OSI tem 7 camadas. Nenhuma delas resolve <strong>governança, linhagem e persistência do conhecimento gerado por IA</strong>. KCP propõe a <strong>Camada 8</strong> — um protocolo aberto para a era da inteligência artificial.
+        </p>
+        <div class="hero-buttons fade-up d3">
+            <a href="https://github.com/kcp-protocol/kcp" target="_blank" class="btn-primary">⭐ Ver no GitHub</a>
+            <a href="https://github.com/kcp-protocol/kcp/blob/main/SPEC.md" target="_blank" class="btn-secondary">📄 Ler a Especificação</a>
         </div>
-    </section>
+        <div class="stats-row fade-up d4">
+            <div class="stat-card"><div class="stat-num">3</div><div class="stat-lbl">SDKs disponíveis</div></div>
+            <div class="stat-card"><div class="stat-num">98</div><div class="stat-lbl">Testes passando</div></div>
+            <div class="stat-card"><div class="stat-num">MIT</div><div class="stat-lbl">Licença open-source</div></div>
+            <div class="stat-card"><div class="stat-num">Ed25519</div><div class="stat-lbl">Assinatura digital</div></div>
+        </div>
+    </div>
+</section>
 
-    <!-- ═══════════ 1. POR QUE AGORA ═══════════ -->
-    <section id="section-1">
-        <div class="container">
-            <div class="section-label fade-up">POR QUE AGORA</div>
-            <h2 class="fade-up">A janela de oportunidade está aberta</h2>
-            <p class="description fade-up">
-                Em 2024, o uso de IA generativa nas empresas explodiu. Em 2026, cada colaborador gera 40-60 análises/semana com agentes de IA. Mas toda essa inteligência está sendo <strong>descartada</strong>.
-            </p>
-
-            <div class="cards-grid">
-                <div class="card fade-up stagger-1">
-                    <div class="card-tag tag-danger">Urgente</div>
-                    <div class="card-icon">📈</div>
-                    <div class="card-title">Explosão de Outputs de IA</div>
-                    <div class="card-text">
-                        ChatGPT, Claude, Copilot, agentes custom — cada ferramenta gera conhecimento que <strong>morre na sessão</strong>.
-                    </div>
-                    <div class="card-stat">847%</div>
-                    <div class="card-text" style="margin-top:0.25rem; font-size:0.8125rem;">crescimento em 2025 (Gartner)</div>
-                </div>
-
-                <div class="card fade-up stagger-2">
-                    <div class="card-tag tag-warning">Custo real</div>
-                    <div class="card-icon">💸</div>
-                    <div class="card-title">Retrabalho Invisível</div>
-                    <div class="card-text">
-                        Cada análise duplicada custa $200-500 (tempo + compute). Em uma empresa de 5.000 pessoas:
-                    </div>
-                    <div class="card-stat">$2.4M/ano</div>
-                    <div class="card-text" style="margin-top:0.25rem; font-size:0.8125rem;">desperdiçado em trabalho duplicado</div>
-                </div>
-
-                <div class="card fade-up stagger-3">
-                    <div class="card-tag tag-danger">Risco</div>
-                    <div class="card-icon">⚖️</div>
-                    <div class="card-title">Compliance Cego</div>
-                    <div class="card-text">
-                        LGPD Art. 20 e EU AI Act Art. 14 exigem explicabilidade. Sem lineage, <strong>auditoria é impossível</strong>.
-                    </div>
-                    <div class="card-stat">0%</div>
-                    <div class="card-text" style="margin-top:0.25rem; font-size:0.8125rem;">rastreabilidade de decisões baseadas em IA</div>
-                </div>
+<!-- PROBLEMA -->
+<section id="problem">
+    <div class="container">
+        <div class="sec-eyebrow fade-up">O PROBLEMA</div>
+        <h2 class="fade-up">Conhecimento gerado por IA está sendo desperdiçado</h2>
+        <p class="sec-desc fade-up">Em 2026, cada time usa múltiplos agentes de IA. Mas toda essa inteligência morre na sessão — sem persistência, sem rastreabilidade, sem reuso.</p>
+        <div class="cards-grid">
+            <div class="card fade-up d1">
+                <div class="card-badge badge-red">Urgente</div>
+                <div class="card-emoji">💭</div>
+                <div class="card-title">Conhecimento Efêmero</div>
+                <div class="card-text">Análises ficam em chats privados. Quando a sessão termina, o conhecimento desaparece. Zero reuso entre times.</div>
+            </div>
+            <div class="card fade-up d2">
+                <div class="card-badge badge-amber">Custo real</div>
+                <div class="card-emoji">💸</div>
+                <div class="card-title">Retrabalho Invisível</div>
+                <div class="card-text">40–60% das análises são duplicadas. Em uma empresa de 5.000 pessoas, isso representa <strong>$2.4M/ano</strong> desperdiçados.</div>
+            </div>
+            <div class="card fade-up d3">
+                <div class="card-badge badge-red">Risco legal</div>
+                <div class="card-emoji">⚖️</div>
+                <div class="card-title">Compliance Cego</div>
+                <div class="card-text">LGPD Art. 20 e EU AI Act Art. 14 exigem explicabilidade. Sem lineage, auditoria de decisões baseadas em IA é impossível.</div>
+            </div>
+            <div class="card fade-up d4">
+                <div class="card-badge badge-purple">Interop</div>
+                <div class="card-emoji">🏝️</div>
+                <div class="card-title">IAs em Silos</div>
+                <div class="card-text">ChatGPT não sabe o que o Claude fez. Copilot não sabe o que seu agente custom gerou. Zero interoperabilidade entre ferramentas.</div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- ═══════════ 2. O PROBLEMA ═══════════ -->
-    <section id="section-2">
-        <div class="container">
-            <div class="section-label fade-up">O PROBLEMA</div>
-            <h2 class="fade-up">Conhecimento gerado por IA está se perdendo</h2>
-            <p class="description fade-up">
-                Toda empresa que usa IA hoje vive o mesmo ciclo: gerar → perder → regerar → perder. Nenhuma camada do stack de rede atual resolve isso.
-            </p>
-
-            <div class="cards-grid">
-                <div class="card fade-up stagger-1">
-                    <div class="card-icon">💭</div>
-                    <div class="card-title">Conhecimento Efêmero</div>
-                    <div class="card-text">Análises ficam em chats privados, desaparecem quando a sessão termina. Zero reuso entre times.</div>
-                </div>
-                <div class="card fade-up stagger-2">
-                    <div class="card-icon">🔍</div>
-                    <div class="card-title">Descoberta Impossível</div>
-                    <div class="card-text">"Alguém já analisou isso?" → ninguém sabe onde procurar. Cada time é uma ilha isolada.</div>
-                </div>
-                <div class="card fade-up stagger-3">
-                    <div class="card-icon">🔒</div>
-                    <div class="card-title">Governança Zero</div>
-                    <div class="card-text">Sem rastreabilidade de fontes, sem versionamento, sem lineage. Impossível auditar decisões.</div>
-                </div>
-                <div class="card fade-up stagger-4">
-                    <div class="card-icon">🏝️</div>
-                    <div class="card-title">IAs em Silos</div>
-                    <div class="card-text">ChatGPT não sabe o que o Claude fez. Copilot não sabe o que seu agente custom gerou. Zero interoperabilidade.</div>
-                </div>
+<!-- PRIOR ART -->
+<section id="prior-art">
+    <div class="container">
+        <div class="sec-eyebrow fade-up">POR QUE NÃO EXISTE AINDA</div>
+        <h2 class="fade-up">Nenhuma solução atual resolve tudo isso</h2>
+        <p class="sec-desc fade-up">Semantic Web, MCP, Knowledge Graphs, Git, RAG — todos fazem parte do puzzle. Nenhum combina persistência + governança + descoberta + lineage em um protocolo aberto.</p>
+        <div class="prior-grid">
+            <div class="prior-card fade-up d1">
+                <div class="prior-name">🌐 Semantic Web (RDF/SPARQL)</div>
+                <div class="prior-year">W3C · 2001</div>
+                <div class="prior-row"><strong>✓ Faz bem:</strong> Dados linkados, ontologias formais</div>
+                <div class="prior-row"><strong style="color:var(--red)">✗ Falta:</strong> Sem lineage. Sem multi-tenant. Adoção &lt;0.1% da web.</div>
+            </div>
+            <div class="prior-card fade-up d2">
+                <div class="prior-name">🔌 Model Context Protocol (MCP)</div>
+                <div class="prior-year">Anthropic · 2024</div>
+                <div class="prior-row"><strong>✓ Faz bem:</strong> Contexto em tempo real entre ferramentas IA</div>
+                <div class="prior-row"><strong style="color:var(--red)">✗ Falta:</strong> Apenas sessão. Sem persistência. Sem discovery. Sem governance.</div>
+            </div>
+            <div class="prior-card fade-up d3">
+                <div class="prior-name">🕸️ Knowledge Graphs</div>
+                <div class="prior-year">Google KG, Neo4j, Wikidata</div>
+                <div class="prior-row"><strong>✓ Faz bem:</strong> Relações entre entidades</div>
+                <div class="prior-row"><strong style="color:var(--red)">✗ Falta:</strong> Modela entidades, não insights. Curadoria manual. Sem lineage.</div>
+            </div>
+            <div class="prior-card fade-up d4">
+                <div class="prior-name">📂 Git + Wiki + RAG</div>
+                <div class="prior-year">Diversas tecnologias</div>
+                <div class="prior-row"><strong>✓ Faz bem:</strong> Versionamento, documentação, retrieval</div>
+                <div class="prior-row"><strong style="color:var(--red)">✗ Falta:</strong> Sem auto-ingest de IA. Sem federação. Sem governança. Fragmentados.</div>
             </div>
         </div>
-    </section>
+        <div style="margin-top:2rem;padding:1.75rem 2rem;background:var(--blue-soft);border:1.5px solid var(--blue-mid);border-radius:var(--radius-lg);text-align:center" class="fade-up">
+            <p style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:0.5rem">KCP é o primeiro protocolo a combinar:</p>
+            <p style="font-size:1rem;color:var(--text-muted);line-height:2">✅ Persistência &nbsp;·&nbsp; ✅ Governança Multi-Tenant &nbsp;·&nbsp; ✅ Descoberta Semântica<br>✅ Lineage Tracking &nbsp;·&nbsp; ✅ Federação P2P &nbsp;·&nbsp; ✅ Protocolo Aberto</p>
+        </div>
+    </div>
+</section>
 
-    <!-- ═══════════ 3. PRIOR ART ═══════════ -->
-    <section id="section-3">
-        <div class="container">
-            <div class="section-label fade-up">PRIOR ART</div>
-            <h2 class="fade-up">Por que nada que existe hoje resolve?</h2>
-            <p class="description fade-up">
-                Pesquisamos extensivamente: Semantic Web, MCP, Knowledge Graphs, Data Catalogs, Git, Wikis, RAG. <strong>Nenhum combina persistência + governança + descoberta + lineage em um protocolo aberto.</strong>
-            </p>
-
-            <div class="prior-art-grid">
-                <div class="prior-card fade-up stagger-1">
-                    <div class="prior-name">🌐 Semantic Web (RDF/SPARQL)</div>
-                    <div class="prior-year">W3C, 2001 — 25 anos</div>
-                    <div class="prior-does">✓ O que faz bem:</div>
-                    <div class="prior-detail">Dados linkados estruturados, ontologias formais (OWL)</div>
-                    <div class="prior-gap">✗ O que falta:</div>
-                    <div class="prior-detail">Foco em dados estáticos. Sem lineage. Sem multi-tenant. Adoção &lt;0.1% da web.</div>
-                </div>
-
-                <div class="prior-card fade-up stagger-2">
-                    <div class="prior-name">🔌 Model Context Protocol (MCP)</div>
-                    <div class="prior-year">Anthropic, 2024 — 2 anos</div>
-                    <div class="prior-does">✓ O que faz bem:</div>
-                    <div class="prior-detail">Compartilha contexto entre ferramentas IA em tempo real</div>
-                    <div class="prior-gap">✗ O que falta:</div>
-                    <div class="prior-detail">Apenas sessão. Sem persistência. Sem descoberta. Sem governança.</div>
-                </div>
-
-                <div class="prior-card fade-up stagger-3">
-                    <div class="prior-name">🕸️ Knowledge Graphs</div>
-                    <div class="prior-year">Google KG, Wikidata, Neo4j</div>
-                    <div class="prior-does">✓ O que faz bem:</div>
-                    <div class="prior-detail">Relações entre entidades, graph traversal</div>
-                    <div class="prior-gap">✗ O que falta:</div>
-                    <div class="prior-detail">Modela entidades, não insights. Sem lineage. Sem multi-tenant. Curadoria manual.</div>
-                </div>
-
-                <div class="prior-card fade-up stagger-4">
-                    <div class="prior-name">📂 Git / Wikis / RAG</div>
-                    <div class="prior-year">Diversas tecnologias</div>
-                    <div class="prior-does">✓ O que faz bem:</div>
-                    <div class="prior-detail">Versionamento (Git), documentação (Wiki), retrieval (RAG)</div>
-                    <div class="prior-gap">✗ O que falta:</div>
-                    <div class="prior-detail">Sem busca semântica. Sem auto-ingest de IA. Sem federação cross-org. Fragmentados.</div>
-                </div>
+<!-- PROTOCOLO -->
+<section id="protocol">
+    <div class="container">
+        <div class="sec-eyebrow fade-up">A SOLUÇÃO</div>
+        <h2 class="fade-up">Uma nova camada: Layer 8</h2>
+        <p class="sec-desc fade-up">KCP propõe uma <strong>Camada de Contexto & Conhecimento</strong> acima do HTTP (L7), com primitivas abertas para publicar, descobrir, assinar e rastrear artefatos de conhecimento.</p>
+        <div class="layer-stack fade-up">
+            <div class="layer highlight">
+                <div class="layer-label">CAMADA 8 — KCP (NOVA)</div>
+                <div class="layer-title-sm">🧠 Contexto & Conhecimento</div>
+                <div class="layer-desc-sm">Persistência semântica · Governança multi-tenant · Lineage completo · Descoberta contextual</div>
             </div>
-
-            <div class="arch-block fade-up" style="margin-top: 2.5rem; text-align: center;">
-                <p style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem;">KCP é o primeiro protocolo a combinar:</p>
-                <p style="color: var(--text-muted); font-size: 1.0625rem; line-height: 2;">
-                    ✅ Persistência &nbsp;·&nbsp; ✅ Governança Multi-Tenant &nbsp;·&nbsp; ✅ Descoberta Semântica<br>
-                    ✅ Lineage Tracking &nbsp;·&nbsp; ✅ Federação P2P &nbsp;·&nbsp; ✅ Protocolo Aberto
-                </p>
+            <div class="layer">
+                <div class="layer-label">CAMADA 7</div>
+                <div class="layer-title-sm">📱 Aplicação (HTTP, REST, GraphQL)</div>
+                <div class="layer-desc-sm">Consome e gera dados, mas não governa conhecimento</div>
+            </div>
+            <div class="layer" style="opacity:0.6">
+                <div class="layer-label">CAMADAS 1–6</div>
+                <div class="layer-title-sm">🔌 Infraestrutura de Rede</div>
+                <div class="layer-desc-sm">Transporte, rede, enlace, física</div>
             </div>
         </div>
-    </section>
-
-    <!-- ═══════════ 4. A SOLUÇÃO ═══════════ -->
-    <section id="section-4">
-        <div class="container">
-            <div class="section-label fade-up">A SOLUÇÃO</div>
-            <h2 class="fade-up">Uma nova camada: Layer 8</h2>
-            <p class="description fade-up">
-                Propomos uma <strong>Camada de Contexto & Conhecimento</strong> acima da camada de aplicação (L7), com um protocolo aberto: <strong>KCP</strong>.
-            </p>
-
-            <div class="arch-block fade-up">
-                <div class="layer new">
-                    <div class="layer-number">CAMADA 8 — NOVA</div>
-                    <div class="layer-title">🧠 Contexto & Conhecimento (KCP)</div>
-                    <div class="layer-desc">Persistência semântica · Governança multi-tenant · Descoberta contextual · Lineage (fonte → insight → decisão)</div>
-                </div>
-                <div class="layer">
-                    <div class="layer-number">CAMADA 7</div>
-                    <div class="layer-title">📱 Aplicação (HTTP, SMTP, FTP)</div>
-                    <div class="layer-desc">Consome e gera dados, mas não governa conhecimento</div>
-                </div>
-                <div class="layer">
-                    <div class="layer-number">CAMADA 6</div>
-                    <div class="layer-title">🎨 Apresentação</div>
-                    <div class="layer-desc">Tradução, criptografia, compressão</div>
-                </div>
-                <div class="layer" style="opacity: 0.5;">
-                    <div class="layer-number">CAMADAS 1-5</div>
-                    <div class="layer-title">🔌 Infraestrutura de Rede</div>
-                    <div class="layer-desc">Transporte, rede, enlace, física</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ═══════════ 5. PROTOCOLO ═══════════ -->
-    <section id="section-5">
-        <div class="container">
-            <div class="section-label fade-up">PROTOCOLO</div>
-            <h2 class="fade-up">KCP: Knowledge Context Protocol</h2>
-            <p class="description fade-up">
-                Um protocolo aberto para interoperabilidade de conhecimento entre IAs, ferramentas e organizações.
-            </p>
-
-            <div class="cards-grid">
-                <div class="card fade-up stagger-1">
-                    <div class="card-tag tag-primary">Auto-Ingest</div>
-                    <div class="card-icon">📝</div>
-                    <div class="card-title">Publicação Sem Fricção</div>
-                    <div class="card-text">Agentes publicam outputs automaticamente. HTML, JSON, análises — tudo armazenado com metadata rico.</div>
-                </div>
-                <div class="card fade-up stagger-2">
-                    <div class="card-tag tag-primary">Lineage</div>
-                    <div class="card-icon">🔗</div>
-                    <div class="card-title">Rastreabilidade Total</div>
-                    <div class="card-text">Cada artefato registra: fonte de dados → query → agente → insight → decisão. Cadeia completa e auditável.</div>
-                </div>
-                <div class="card fade-up stagger-3">
-                    <div class="card-tag tag-primary">Discovery</div>
-                    <div class="card-icon">🔍</div>
-                    <div class="card-title">Busca Semântica</div>
-                    <div class="card-text">Vector DB + full-text search. "Quem já fez análise de churn?" retorna resultados relevantes em milissegundos.</div>
-                </div>
-                <div class="card fade-up stagger-4">
-                    <div class="card-tag tag-primary">P2P</div>
-                    <div class="card-icon">🌐</div>
-                    <div class="card-title">Federação Distribuída</div>
-                    <div class="card-text">Inspirado em BitTorrent/IPFS. Cada organização é um nó. Sem servidor central. DHT para descoberta.</div>
-                </div>
-            </div>
-
-            <div class="arch-block fade-up" style="margin-top: 2rem;">
-                <div class="card-title" style="font-size: 1.25rem; margin-bottom: 1.25rem;">Payload KCP v0.1</div>
-                <pre style="background: rgba(0,0,0,0.4); padding: 1.5rem; border-radius: 10px; overflow-x: auto; font-size: 0.8125rem; line-height: 1.7; color: #A0E7FF;">
-{
-  "id": "uuid-v4",
-  "user_id": "alice@example.com",
-  "tenant_id": "acme-corp",
-  "team": "data-science",
-  "tags": ["churn", "analytics", "ml"],
-  "source": "jupyter-agent-v1.2.3",
-  "visibility": "team",
-  "lineage": {
-    "query": "Predict customer churn using 12 months of history",
-    "data_sources": ["postgres://analytics/customers"],
-    "agent": "jupyter-agent-v1.2.3"
+        <div style="margin-top:2.5rem" class="fade-up">
+            <p style="font-weight:700;font-size:1rem;margin-bottom:1rem;color:var(--text)">Artefato KCP — estrutura do payload:</p>
+            <div class="code-block">
+<pre>{
+  <span class="code-key">"artifact_id"</span>: <span class="code-str">"uuid-v4"</span>,
+  <span class="code-key">"user_id"</span>:     <span class="code-str">"alice@example.com"</span>,
+  <span class="code-key">"tenant_id"</span>:   <span class="code-str">"acme-corp"</span>,
+  <span class="code-key">"tags"</span>:        <span class="code-val">["churn", "analytics", "ml"]</span>,
+  <span class="code-key">"acl"</span>:         { <span class="code-key">"visibility"</span>: <span class="code-str">"team"</span> },
+  <span class="code-key">"lineage"</span>: {
+    <span class="code-key">"query"</span>:        <span class="code-str">"Predict customer churn using 12 months"</span>,
+    <span class="code-key">"data_sources"</span>: <span class="code-val">["postgres://analytics/customers"]</span>,
+    <span class="code-key">"parent_id"</span>:   <span class="code-val">null</span>
   },
-  "content_hash": "sha256:e3b0c44298fc1c...",
-  "signature": "ed25519:a1b2c3d4e5f6..."
+  <span class="code-key">"content_hash"</span>: <span class="code-str">"sha256:e3b0c44298fc1c..."</span>,
+  <span class="code-key">"signature"</span>:    <span class="code-str">"ed25519:a1b2c3d4..."</span>
 }</pre>
             </div>
         </div>
-    </section>
+        <div class="cards-grid" style="margin-top:2rem">
+            <div class="card fade-up d1"><div class="card-badge badge-blue">Publish</div><div class="card-emoji">📝</div><div class="card-title">Auto-Ingest Sem Fricção</div><div class="card-text">Agentes publicam outputs automaticamente com metadata rico, hash de conteúdo e assinatura digital.</div></div>
+            <div class="card fade-up d2"><div class="card-badge badge-blue">Lineage</div><div class="card-emoji">🔗</div><div class="card-title">Rastreabilidade Total</div><div class="card-text">Fonte → query → agente → insight → decisão. Cadeia completa, verificável e auditável.</div></div>
+            <div class="card fade-up d3"><div class="card-badge badge-blue">Discovery</div><div class="card-emoji">🔍</div><div class="card-title">Busca Semântica</div><div class="card-text">"Quem já fez análise de churn?" retorna resultados relevantes em milissegundos.</div></div>
+            <div class="card fade-up d4"><div class="card-badge badge-blue">Crypto</div><div class="card-emoji">🔐</div><div class="card-title">Zero-Trust por Design</div><div class="card-text">Ed25519 obrigatório. 4 tiers: public / org / team / private. Non-repudiable.</div></div>
+        </div>
+    </div>
+</section>
 
-    <!-- ═══════════ 6. SEGURANÇA ═══════════ -->
-    <section id="section-6">
-        <div class="container">
-            <div class="section-label fade-up">SEGURANÇA</div>
-            <h2 class="fade-up">Zero-trust por design</h2>
-            <p class="description fade-up">
-                Cada artefato é assinado. Cada acesso é verificado. Cada tenant é isolado criptograficamente.
-            </p>
-
-            <div class="cards-grid">
-                <div class="card fade-up stagger-1">
-                    <div class="card-icon">🔐</div>
-                    <div class="card-title">3 Camadas de Criptografia</div>
-                    <div class="card-text">
-                        <strong>Transporte:</strong> TLS 1.3<br>
-                        <strong>Storage:</strong> AES-256-GCM (at rest)<br>
-                        <strong>Conteúdo:</strong> Per-tenant keys (E2E)
-                    </div>
-                </div>
-                <div class="card fade-up stagger-2">
-                    <div class="card-icon">✍️</div>
-                    <div class="card-title">Assinatura Digital</div>
-                    <div class="card-text">
-                        Ed25519 obrigatório. Todo artefato é assinado pelo autor. Non-repudiable. Verificável por qualquer nó.
-                    </div>
-                </div>
-                <div class="card fade-up stagger-3">
-                    <div class="card-icon">🏢</div>
-                    <div class="card-title">Isolamento Zero-Knowledge</div>
-                    <div class="card-text">
-                        Dados do Tenant A são criptografados com a chave do Tenant A. Tenant B <strong>não pode ler</strong>, mesmo com acesso físico ao storage.
-                    </div>
-                </div>
-                <div class="card fade-up stagger-4">
-                    <div class="card-icon">🎚️</div>
-                    <div class="card-title">4 Tiers de Visibilidade</div>
-                    <div class="card-text">
-                        <strong>Public:</strong> Qualquer um lê<br>
-                        <strong>Org:</strong> Mesmo tenant<br>
-                        <strong>Team:</strong> Mesmo time<br>
-                        <strong>Private:</strong> Só autor + ACL
-                    </div>
-                </div>
+<!-- SDKs -->
+<section id="sdks">
+    <div class="container">
+        <div class="sec-eyebrow fade-up">IMPLEMENTAÇÃO</div>
+        <h2 class="fade-up">SDK funcional em 3 linguagens</h2>
+        <p class="sec-desc fade-up">KCP não é só teoria. Publicação, busca, lineage, assinatura e verificação implementados e testados nos três SDKs.</p>
+        <div class="sdk-grid">
+            <div class="sdk-card done fade-up d1">
+                <div class="sdk-icon">🐍</div>
+                <div class="sdk-name">Python SDK</div>
+                <div class="sdk-tests green">✅ 61 testes passando</div>
+                <div class="sdk-detail"><code>SQLite + FTS5</code> · <code>Ed25519</code><br>Python 3.13 · pytest · pyproject.toml</div>
+            </div>
+            <div class="sdk-card done fade-up d2">
+                <div class="sdk-icon">🔷</div>
+                <div class="sdk-name">TypeScript SDK</div>
+                <div class="sdk-tests green">✅ 37 testes passando</div>
+                <div class="sdk-detail"><code>@noble/ed25519</code> · <code>@noble/hashes</code><br>ESM + CJS + DTS · Node.js 25 · Jest</div>
+            </div>
+            <div class="sdk-card wip fade-up d3">
+                <div class="sdk-icon">🐹</div>
+                <div class="sdk-name">Go SDK</div>
+                <div class="sdk-tests blue">🔧 Implementado</div>
+                <div class="sdk-detail"><code>Store</code> · <code>Node</code> · <code>Crypto</code><br>Go 1.22 · Testes em andamento</div>
             </div>
         </div>
-    </section>
+        <div style="margin-top:1.5rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem" class="fade-up">
+            <div style="padding:1.25rem 1.5rem;background:var(--green-soft);border:1px solid var(--green-mid);border-radius:var(--radius)"><div style="font-weight:700;color:var(--green);margin-bottom:.375rem">✅ Publish + Search</div><div style="font-size:.875rem;color:var(--text-muted)">Artefatos publicados, busca FTS em &lt;5ms, assinatura válida verificada</div></div>
+            <div style="padding:1.25rem 1.5rem;background:var(--green-soft);border:1px solid var(--green-mid);border-radius:var(--radius)"><div style="font-weight:700;color:var(--green);margin-bottom:.375rem">✅ Lineage Chain</div><div style="font-size:.875rem;color:var(--text-muted)">Root → derivado funcional. Rastreabilidade cross-artifact completa</div></div>
+            <div style="padding:1.25rem 1.5rem;background:var(--green-soft);border:1px solid var(--green-mid);border-radius:var(--radius)"><div style="font-weight:700;color:var(--green);margin-bottom:.375rem">✅ Verify + Export</div><div style="font-size:.875rem;color:var(--text-muted)">JSON assinado portátil. Adulteração detectada automaticamente</div></div>
+        </div>
+        <div style="margin-top:1.5rem;padding:1.25rem 1.5rem;background:var(--bg-soft);border:1px solid var(--border);border-radius:var(--radius);font-size:.875rem;color:var(--text-muted)" class="fade-up">
+            📦 &nbsp;<code style="background:rgba(0,0,0,.06);padding:.2em .5em;border-radius:4px;margin-right:1rem">pip install kcp</code><code style="background:rgba(0,0,0,.06);padding:.2em .5em;border-radius:4px;margin-right:1rem">npm install @kcp-protocol/kcp</code><code style="background:rgba(0,0,0,.06);padding:.2em .5em;border-radius:4px">go get github.com/kcp-protocol/kcp</code>
+        </div>
+    </div>
+</section>
 
-    <!-- ═══════════ 7. ANTES vs DEPOIS ═══════════ -->
-    <section id="section-7">
-        <div class="container">
-            <div class="section-label fade-up">COMPARAÇÃO</div>
-            <h2 class="fade-up">Antes vs Depois</h2>
-
-            <table class="comparison-table fade-up">
-                <thead>
-                    <tr>
-                        <th style="width:35%">Recurso</th>
-                        <th style="width:32%">Hoje (Sem KCP)</th>
-                        <th style="width:33%">Com KCP</th>
-                    </tr>
-                </thead>
+<!-- COMPARAÇÃO -->
+<section id="comparison">
+    <div class="container">
+        <div class="sec-eyebrow fade-up">ANTES vs DEPOIS</div>
+        <h2 class="fade-up">O que muda com KCP</h2>
+        <p class="sec-desc fade-up">Comparando o estado atual (sem KCP) com o fluxo de trabalho usando o protocolo.</p>
+        <div class="table-wrap fade-up">
+            <table>
+                <thead><tr><th>Recurso</th><th>Hoje (sem KCP)</th><th>Com KCP</th></tr></thead>
                 <tbody>
-                    <tr><td>Persistência de análises</td><td><span class="cross">✗</span> Chat privado, se perde</td><td><span class="check">✓</span> Automático, versionado</td></tr>
-                    <tr><td>Descoberta de conhecimento</td><td><span class="cross">✗</span> Perguntar no Slack</td><td><span class="check">✓</span> Busca semântica</td></tr>
-                    <tr><td>Lineage de dados</td><td><span class="cross">✗</span> Zero rastreabilidade</td><td><span class="check">✓</span> Fonte → insight → decisão</td></tr>
-                    <tr><td>Governança multi-tenant</td><td><span class="cross">✗</span> RBAC genérico</td><td><span class="check">✓</span> Org/Team contextual</td></tr>
-                    <tr><td>Reuso de análises</td><td><span class="cross">✗</span> 0%</td><td><span class="check">✓</span> 40-60%</td></tr>
-                    <tr><td>Interoperabilidade entre IAs</td><td><span class="cross">✗</span> Silos isolados</td><td><span class="check">✓</span> Protocolo aberto</td></tr>
-                    <tr><td>Tempo de discovery</td><td>2-3 horas</td><td><strong style="color:var(--accent)">15 minutos</strong></td></tr>
-                    <tr><td>Auditoria/Compliance</td><td>2 semanas (manual)</td><td><strong style="color:var(--accent)">2 horas (query)</strong></td></tr>
+                    <tr><td>Persistência de análises</td><td><span class="no">✗ Chat privado — se perde</span></td><td><span class="yes">✓ Automático, versionado</span></td></tr>
+                    <tr><td>Descoberta de conhecimento</td><td><span class="no">✗ Perguntar no Slack</span></td><td><span class="yes">✓ Busca semântica em ms</span></td></tr>
+                    <tr><td>Lineage de dados</td><td><span class="no">✗ Zero rastreabilidade</span></td><td><span class="yes">✓ Fonte → insight → decisão</span></td></tr>
+                    <tr><td>Governança multi-tenant</td><td><span class="no">✗ RBAC genérico</span></td><td><span class="yes">✓ Org/Team contextual + ACL</span></td></tr>
+                    <tr><td>Interoperabilidade entre IAs</td><td><span class="no">✗ Silos isolados</span></td><td><span class="yes">✓ Protocolo aberto</span></td></tr>
+                    <tr><td>Taxa de reuso de análises</td><td><span class="no">✗ 0%</span></td><td><span class="yes">✓ 40–60%</span></td></tr>
+                    <tr><td>Tempo de discovery</td><td>2–3 horas</td><td><strong style="color:var(--green)">15 minutos</strong></td></tr>
+                    <tr><td>Auditoria de compliance</td><td>2 semanas (manual)</td><td><strong style="color:var(--green)">2 horas (query)</strong></td></tr>
                 </tbody>
             </table>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- ═══════════ 8. ROI ═══════════ -->
-    <section id="section-8">
-        <div class="container">
-            <div class="section-label fade-up">ROI CONCRETO</div>
-            <h2 class="fade-up">Os números falam por si</h2>
-            <p class="description fade-up">
-                Cenário: organização de engenharia com 200 pessoas e 40 times.
+<!-- ROI -->
+<section id="roi">
+    <div class="container">
+        <div class="sec-eyebrow fade-up">ROI CONCRETO</div>
+        <h2 class="fade-up">Os números falam por si</h2>
+        <p class="sec-desc fade-up">Cenário: time de engenharia com 200 pessoas e 40 times, 3 análises por pessoa/semana.</p>
+        <div class="roi-grid">
+            <div class="roi-box before fade-up d1">
+                <h3>❌ Sem KCP (hoje)</h3>
+                <div class="roi-row"><span>Análises duplicadas/mês</span><span class="bad">120</span></div>
+                <div class="roi-row"><span>Horas perdidas/mês</span><span class="bad">80h</span></div>
+                <div class="roi-row"><span>Custo retrabalho/ano</span><span class="bad">$96,000</span></div>
+                <div class="roi-row"><span>Taxa de reuso</span><span class="bad">0%</span></div>
+                <div class="roi-row"><span>Tempo de auditoria</span><span class="bad">2 semanas</span></div>
+            </div>
+            <div class="roi-box after fade-up d2">
+                <h3>✅ Com KCP</h3>
+                <div class="roi-row"><span>Análises duplicadas/mês</span><span class="good">18</span></div>
+                <div class="roi-row"><span>Horas perdidas/mês</span><span class="good">12h</span></div>
+                <div class="roi-row"><span>Custo retrabalho/ano</span><span class="good">$14,400</span></div>
+                <div class="roi-row"><span>Taxa de reuso</span><span class="good">60%</span></div>
+                <div class="roi-row"><span>Tempo de auditoria</span><span class="good">2 horas</span></div>
+            </div>
+            <div class="roi-highlight fade-up d3">
+                <div class="roi-big">6.7×</div>
+                <div class="roi-big-lbl">ROI no primeiro ano · Payback em menos de 2 meses</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ROADMAP -->
+<section id="roadmap">
+    <div class="container">
+        <div class="sec-eyebrow fade-up">ROADMAP</div>
+        <h2 class="fade-up">Implementação em 3 fases</h2>
+        <div class="roadmap-grid">
+            <div class="roadmap-card fade-up d1" style="border-color:var(--green-mid);background:var(--green-soft)">
+                <h3 style="color:var(--green)">✅ Fase 1 — MVP</h3>
+                <ul>
+                    <li>✅ Spec do protocolo v0.2</li>
+                    <li>✅ Python SDK — 61 testes</li>
+                    <li>✅ TypeScript SDK — 37 testes</li>
+                    <li>✅ Go SDK implementado</li>
+                    <li>✅ Documentação completa</li>
+                    <li>✅ Org GitHub kcp-protocol</li>
+                </ul>
+            </div>
+            <div class="roadmap-card fade-up d2" style="border-color:var(--blue-mid)">
+                <h3 style="color:var(--blue)">🔵 Fase 2 — Escala</h3>
+                <ul>
+                    <li>✅ Lineage tracking</li>
+                    <li>✅ Multi-tenant ACL</li>
+                    <li>☐ Vector DB (busca semântica)</li>
+                    <li>☐ Portal de discovery</li>
+                    <li>☐ Go SDK testes</li>
+                    <li>☐ 100 early adopters</li>
+                </ul>
+            </div>
+            <div class="roadmap-card fade-up d3">
+                <h3 style="color:var(--text-2)">⚪ Fase 3 — Padrão</h3>
+                <ul>
+                    <li>☐ IPFS + libp2p (P2P)</li>
+                    <li>☐ KCP Native Format (.kcp)</li>
+                    <li>☐ RFC submetido (IETF)</li>
+                    <li>☐ Paper no ArXiv</li>
+                    <li>☐ Comunidade global</li>
+                </ul>
+            </div>
+        </div>
+        <div class="disclaimer fade-up">
+            <strong>ℹ️ Nota:</strong> KCP (Knowledge Context Protocol) opera na camada semântica acima do HTTP. Não deve ser confundido com o protocolo ARQ/UDP de mesmo acrônimo (<a href="https://github.com/skywind3000/kcp" target="_blank" style="color:var(--amber)">skywind3000/kcp</a>), que otimiza latência de rede em jogos — são projetos completamente independentes.
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section id="cta" style="background:var(--bg)">
+    <div class="container">
+        <div class="cta-inner fade-up">
+            <h2>Vamos construir a Camada 8 juntos</h2>
+            <p class="sec-desc">O protocolo é aberto. O código é open-source. A especificação está publicada.<br>Precisamos de early adopters, feedback técnico e contribuidores.</p>
+            <div style="margin-bottom:.5rem">
+                <a href="https://github.com/kcp-protocol/kcp" target="_blank" class="btn-white">⭐ Star no GitHub</a>
+                <a href="https://github.com/kcp-protocol/kcp/blob/main/SPEC.md" target="_blank" class="btn-outline-white">📄 Ler a Spec</a>
+                <a href="https://github.com/kcp-protocol/kcp/blob/main/CONTRIBUTING.md" target="_blank" class="btn-outline-white">🤝 Contribuir</a>
+            </div>
+            <p style="color:rgba(255,255,255,.5);font-size:.8125rem;margin-top:1.5rem">
+                🔗 <a href="https://github.com/kcp-protocol" style="color:rgba(255,255,255,.7)">github.com/kcp-protocol</a> &nbsp;·&nbsp; 🌐 kcp-protocol.org &nbsp;·&nbsp; MIT License · 2026
             </p>
-
-            <div class="roi-container fade-up">
-                <div class="roi-box before">
-                    <h3>❌ Sem KCP (hoje)</h3>
-                    <div class="roi-item"><span class="roi-label">Análises duplicadas/mês</span><span class="roi-value bad">120</span></div>
-                    <div class="roi-item"><span class="roi-label">Horas perdidas/mês</span><span class="roi-value bad">80h</span></div>
-                    <div class="roi-item"><span class="roi-label">Custo retrabalho/ano</span><span class="roi-value bad">$96,000</span></div>
-                    <div class="roi-item"><span class="roi-label">Taxa de reuso</span><span class="roi-value bad">0%</span></div>
-                    <div class="roi-item"><span class="roi-label">Tempo de auditoria</span><span class="roi-value bad">2 semanas</span></div>
-                </div>
-
-                <div class="roi-box after">
-                    <h3>✅ Com KCP</h3>
-                    <div class="roi-item"><span class="roi-label">Análises duplicadas/mês</span><span class="roi-value good">18</span></div>
-                    <div class="roi-item"><span class="roi-label">Horas perdidas/mês</span><span class="roi-value good">12h</span></div>
-                    <div class="roi-item"><span class="roi-label">Custo retrabalho/ano</span><span class="roi-value good">$14,400</span></div>
-                    <div class="roi-item"><span class="roi-label">Taxa de reuso</span><span class="roi-value good">60%</span></div>
-                    <div class="roi-item"><span class="roi-label">Tempo de auditoria</span><span class="roi-value good">2 horas</span></div>
-                </div>
-
-                <div class="roi-highlight">
-                    <div class="roi-big">6.7x</div>
-                    <div class="roi-big-label">ROI no primeiro ano · Payback em 1.8 meses</div>
-                </div>
-            </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- ═══════════ 9. ROADMAP ═══════════ -->
-    <section id="section-9">
-        <div class="container">
-            <div class="section-label fade-up">ROADMAP</div>
-            <h2 class="fade-up">Implementação em 3 fases</h2>
+<footer>
+    <div class="container">
+        <p>
+            <a href="https://github.com/kcp-protocol/kcp">GitHub</a> &nbsp;·&nbsp;
+            <a href="https://github.com/kcp-protocol/kcp/blob/main/SPEC.md">Spec</a> &nbsp;·&nbsp;
+            <a href="https://github.com/kcp-protocol/kcp/blob/main/llms.txt">llms.txt</a> &nbsp;·&nbsp;
+            <a href="https://github.com/kcp-protocol/kcp/blob/main/docs/whitepaper.md">Whitepaper</a>
+        </p>
+        <p style="margin-top:.5rem">KCP — Knowledge Context Protocol · Open-source · MIT · 2026</p>
+    </div>
+</footer>
 
-            <div class="roadmap-grid">
-                <div class="roadmap-card fade-up stagger-1">
-                    <h3 style="color: var(--primary);">Fase 1: MVP ✅</h3>
-                    <ul>
-                        <li>✅ Spec do protocolo v0.1</li>
-                        <li>✅ Documentação completa</li>
-                        <li>✅ Repo open-source</li>
-                        <li>✅ Python SDK (61 testes)</li>
-                        <li>✅ TypeScript SDK (37 testes)</li>
-                        <li>✅ Go SDK implementado</li>
-                    </ul>
-                    <div class="card-stat">🎯 Conceito validado</div>
-                </div>
-
-                <div class="roadmap-card fade-up stagger-2">
-                    <h3 style="color: var(--secondary);">Fase 2: Escala (em andamento)</h3>
-                    <ul>
-                        <li>✅ SDKs TypeScript + Go</li>
-                        <li>✅ Lineage tracking</li>
-                        <li>☐ Vector DB (busca semântica)</li>
-                        <li>☐ Multi-tenant + RBAC</li>
-                        <li>☐ Portal de discovery</li>
-                        <li>☐ 100 usuários</li>
-                    </ul>
-                    <div class="card-stat">🎯 Product-market fit</div>
-                </div>
-
-                <div class="roadmap-card fade-up stagger-3">
-                    <h3 style="color: var(--accent);">Fase 3: Protocolo (6 meses)</h3>
-                    <ul>
-                        <li>☐ IPFS + libp2p (P2P)</li>
-                        <li>☐ KCP Native Format (.kcp)</li>
-                        <li>☐ RFC submetido (IETF)</li>
-                        <li>☐ Paper no ArXiv</li>
-                        <li>☐ Comunidade global</li>
-                    </ul>
-                    <div class="card-stat">🎯 Padrão aberto</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ═══════════ 10. Status Atual ═══════════ -->
-    <section id="section-10">
-        <div class="container">
-            <div class="fade-up">
-                <div class="section-label">IMPLEMENTAÇÃO</div>
-                <h2>SDK funcional e testado</h2>
-                <p class="description">O protocolo não é só teoria. Implementamos dois SDKs, testamos publicação, busca, lineage, assinatura e compartilhamento.</p>
-            </div>
-
-            <div class="grid-3 fade-up stagger-1" style="margin-bottom: 2rem;">
-                <div class="card">
-                    <div class="card-icon">🐍</div>
-                    <h3>Python SDK</h3>
-                    <p>SQLite, FTS5, Ed25519, CLI. <strong style="color: var(--accent);">61 testes ✅</strong></p>
-                </div>
-                <div class="card">
-                    <div class="card-icon">🔷</div>
-                    <h3>TypeScript SDK</h3>
-                    <p>@noble/ed25519, JSON storage, ESM+CJS. <strong style="color: var(--accent);">37 testes ✅</strong></p>
-                </div>
-                <div class="card">
-                    <div class="card-icon">�</div>
-                    <h3>Go SDK</h3>
-                    <p>Store, Node, Crypto. <strong style="color: var(--warning);">Implementado 🔧</strong></p>
-                </div>
-            </div>
-
-            <div class="grid-3 fade-up stagger-2">
-                <div class="card" style="background: var(--accent-soft); border-color: rgba(33,194,94,0.2);">
-                    <h4 style="color: var(--accent); margin-bottom: 0.5rem;">✅ Publish + Search</h4>
-                    <p>3 artifacts publicados, busca FTS em 2ms, assinatura válida verificada</p>
-                </div>
-                <div class="card" style="background: var(--accent-soft); border-color: rgba(33,194,94,0.2);">
-                    <h4 style="color: var(--accent); margin-bottom: 0.5rem;">✅ Lineage Tracking</h4>
-                    <p>Chain root → derivado funcional. Rastreabilidade completa cross-artifacts</p>
-                </div>
-                <div class="card" style="background: var(--accent-soft); border-color: rgba(33,194,94,0.2);">
-                    <h4 style="color: var(--accent); margin-bottom: 0.5rem;">✅ Export / Import</h4>
-                    <p>JSON assinado portátil. Adulteração detectada automaticamente</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ═══════════ 11. Deploy Corporativo ═══════════ -->
-    <section id="section-11">
-        <div class="container">
-            <div class="fade-up">
-                <div class="section-label">ENTERPRISE</div>
-                <h2>Três caminhos para produção</h2>
-                <p class="description">Do uso pessoal ao enterprise — escala sem reescrever código.</p>
-            </div>
-
-            <div class="grid-3 fade-up stagger-1">
-                <div class="card">
-                    <div class="card-icon">📁</div>
-                    <h3>Google Drive / Dropbox</h3>
-                    <p>Pasta compartilhada como transport. SDK escreve artifacts na pasta, cloud sync distribui pra todos. <strong>Zero infra.</strong></p>
-                    <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(0,0,0,0.3); border-radius: 8px; font-family: monospace; font-size: 0.8em; color: var(--primary);">
-                        KCP_SHARED="/My Drive/kcp"
-                    </div>
-                </div>
-                <div class="card" style="border-color: var(--primary); border-width: 2px;">
-                    <div class="card-icon">🏢</div>
-                    <h3>Hub Corporativo (EC2)</h3>
-                    <p>FastAPI + PostgreSQL + Nginx. Auth via API Key ou OAuth2. Multi-tenant com ACL e audit log.</p>
-                    <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(0,0,0,0.3); border-radius: 8px; font-family: monospace; font-size: 0.8em; color: var(--primary);">
-                        EC2 t3.small = ~$17/mês
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-icon">🌐</div>
-                    <h3>Federation</h3>
-                    <p>Hubs se conectam entre si. Empresa A ↔ Empresa B compartilham knowledge com mTLS + ACL.</p>
-                    <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(0,0,0,0.3); border-radius: 8px; font-family: monospace; font-size: 0.8em; color: var(--text-muted);">
-                        Fase futura (v0.5)
-                    </div>
-                </div>
-            </div>
-
-            <div class="fade-up stagger-2" style="margin-top: 2rem;">
-                <div class="card" style="text-align: center; background: linear-gradient(135deg, rgba(0,217,255,0.08), rgba(123,97,255,0.08));">
-                    <h3 style="margin-bottom: 1rem;">Para o usuário final, a interface é idêntica nos 3 modos</h3>
-                    <p style="font-size: 1.1em; color: var(--text-muted);">
-                        <span style="color: var(--primary);">Assistente AI</span> → "publica essa análise" → 
-                        <span style="color: var(--accent);">SDK detecta o backend</span> → 
-                        Artifact assinado e compartilhado
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ═══════════ 12. CTA ═══════════ -->
-    <section id="section-12" class="cta-section">
-        <div class="container">
-            <div class="fade-up">
-                <div class="section-label" style="display: inline-block;">PRÓXIMOS PASSOS</div>
-                <h2>Vamos construir a Camada 8 juntos</h2>
-                <p class="description" style="margin-left: auto; margin-right: auto;">
-                    O protocolo é aberto. O código é open-source. A especificação está publicada. Precisamos de early adopters, feedback técnico e contribuidores para transformar isso em padrão da indústria.
-                </p>
-
-                <div class="stats-row" style="margin-bottom: 3rem;">
-                    <div class="stat-card fade-up stagger-1">
-                        <div class="stat-number">1 mês</div>
-                        <div class="stat-label">Tempo para MVP</div>
-                    </div>
-                    <div class="stat-card fade-up stagger-2">
-                        <div class="stat-number">85%</div>
-                        <div class="stat-label">Redução de retrabalho</div>
-                    </div>
-                    <div class="stat-card fade-up stagger-3">
-                        <div class="stat-number">MIT</div>
-                        <div class="stat-label">Licença Open-Source</div>
-                    </div>
-                </div>
-
-                <a href="https://github.com/kcp-protocol/kcp" target="_blank" class="cta-button fade-up">⭐ Ver no GitHub</a>
-                <a href="https://github.com/kcp-protocol/kcp/blob/main/SPEC.md" target="_blank" class="cta-button fade-up">📄 Ler a Spec</a>
-
-                <p style="margin-top: 3rem; color: var(--text-muted); font-size: 0.875rem;">
-                    � <a href="https://github.com/kcp-protocol" style="color: var(--primary); text-decoration: none;">github.com/kcp-protocol</a> · 🌐 kcp-protocol.org
-                </p>
-                <p style="margin-top: 0.5rem; color: var(--text-dim); font-size: 0.75rem;">
-                    Thiago Silva · Open-source · MIT License · 2026
-                </p>
-            </div>
-        </div>
-    </section>
-
-    <script>
-        const observerOptions = { threshold: 0.15, rootMargin: '0px 0px -80px 0px' };
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
-        }, observerOptions);
-        document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
-
-        const sections = document.querySelectorAll('section');
-        const navDots = document.querySelectorAll('.nav-dot');
-        const sectionObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const index = entry.target.id.split('-')[1];
-                    navDots.forEach(dot => dot.classList.remove('active'));
-                    const activeDot = document.querySelector(`[data-section="${index}"]`);
-                    if (activeDot) activeDot.classList.add('active');
-                }
-            });
-        }, { threshold: 0.35 });
-        sections.forEach(section => sectionObserver.observe(section));
-
-        navDots.forEach(dot => {
-            dot.addEventListener('click', () => {
-                document.getElementById(`section-${dot.getAttribute('data-section')}`).scrollIntoView({ behavior: 'smooth' });
-            });
-        });
-
-        let currentVisible = 0;
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowDown' || e.key === ' ') {
-                e.preventDefault();
-                const next = Math.min(currentVisible + 1, sections.length - 1);
-                sections[next].scrollIntoView({ behavior: 'smooth' });
-                currentVisible = next;
-            } else if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                const prev = Math.max(currentVisible - 1, 0);
-                sections[prev].scrollIntoView({ behavior: 'smooth' });
-                currentVisible = prev;
-            }
-        });
-
-        const navSectionObs = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) currentVisible = Array.from(sections).indexOf(entry.target);
-            });
-        }, { threshold: 0.5 });
-        sections.forEach(s => navSectionObs.observe(s));
-    </script>
+<script>
+    const obs = new IntersectionObserver(
+        (entries) => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+        { threshold: 0.12, rootMargin: '0px 0px -60px 0px' }
+    );
+    document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
+</script>
 </body>
 </html>
