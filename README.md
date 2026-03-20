@@ -61,12 +61,12 @@ KCP peers are open nodes anyone can sync with. No account needed.
 
 | Peer | URL | Status | Location |
 |------|-----|--------|----------|
+| peer04 | `https://peer04.kcp-protocol.org` | ✅ Live | DigitalOcean (BRA) |
+| peer05 | `https://peer05.kcp-protocol.org` | ✅ Live | DigitalOcean (BRA) |
 | peer07 | `https://peer07.kcp-protocol.org` | ✅ Live | DigitalOcean (BRA) |
 | peer01 | `https://peer01.kcp-protocol.org` | ⏳ DNS pending | DigitalOcean (BRA) |
 | peer02 | `https://peer02.kcp-protocol.org` | ⏳ DNS pending | DigitalOcean (BRA) |
 | peer03 | `https://peer03.kcp-protocol.org` | ⏳ DNS pending | DigitalOcean (BRA) |
-| peer04 | `https://peer04.kcp-protocol.org` | ⏳ DNS pending | DigitalOcean (BRA) |
-| peer05 | `https://peer05.kcp-protocol.org` | ⏳ DNS pending | DigitalOcean (BRA) |
 
 ```bash
 # Check peer health
