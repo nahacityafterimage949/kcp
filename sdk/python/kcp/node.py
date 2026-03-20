@@ -198,12 +198,24 @@ class KCPNode:
         return verify_artifact(artifact.to_dict(), key)
 
     def stats(self) -> dict:
-        """Get node statistics."""
+        """Get node statistics — full (internal use only)."""
         s = self.store.stats()
         s["node_id"] = self.node_id
         s["user_id"] = self.user_id
         s["tenant_id"] = self.tenant_id
         return s
+
+    def public_stats(self) -> dict:
+        """Get sanitized stats safe to expose via HTTP health endpoint."""
+        s = self.store.stats()
+        return {
+            "status": "ok",
+            "node_id": self.node_id,
+            "artifacts": s["artifacts"],
+            "peers": s["peers"],
+            "kcp_version": "0.2.0",
+            "protocol": "KCP/1",
+        }
 
     # ─── Peer / Sync ──────────────────────────────────────────
 
@@ -302,7 +314,7 @@ class KCPNode:
 
         @app.get("/kcp/v1/health")
         def health():
-            return self.stats()
+            return self.public_stats()
 
         @app.get("/kcp/v1/artifacts")
         def list_artifacts(limit: int = 50, q: Optional[str] = None, tags: Optional[str] = None):

@@ -86,10 +86,15 @@ class TestHealth:
     def test_health_returns_node_info(self, client, tmp_node):
         resp = client.get("/kcp/v1/health")
         data = resp.json()
-        assert data["user_id"] == "test@example.com"
-        assert data["tenant_id"] == "test-org"
+        assert data["status"] == "ok"
         assert "node_id" in data
         assert "artifacts" in data
+        assert "kcp_version" in data
+        # Internal paths must NOT be exposed
+        assert "db_path" not in data
+        assert "db_size_bytes" not in data
+        assert "user_id" not in data
+        assert "tenant_id" not in data
 
     def test_health_initial_artifact_count_is_zero(self, client):
         resp = client.get("/kcp/v1/health")
