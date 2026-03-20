@@ -172,6 +172,9 @@ class KCPNode:
         """List known peers."""
         return self.store.get_peers()
 
+    # Header sent on all outbound peer requests — required by public peers
+    _KCP_CLIENT_HEADER = {"X-KCP-Client": f"kcp-python/0.2.0"}
+
     def sync_push(self, peer_url: str, since: Optional[str] = None) -> dict:
         """Push local artifacts to a peer."""
         try:
@@ -189,6 +192,7 @@ class KCPNode:
                     resp = httpx.post(
                         f"{peer_url.rstrip('/')}/kcp/v1/sync/push",
                         json=data,
+                        headers=self._KCP_CLIENT_HEADER,
                         timeout=30.0,
                     )
                     if resp.status_code in (200, 201):
@@ -213,6 +217,7 @@ class KCPNode:
             resp = httpx.get(
                 f"{peer_url.rstrip('/')}/kcp/v1/sync/list",
                 params=params,
+                headers=self._KCP_CLIENT_HEADER,
                 timeout=30.0,
             )
             remote_ids = resp.json().get("ids", [])
@@ -225,6 +230,7 @@ class KCPNode:
 
                 resp = httpx.get(
                     f"{peer_url.rstrip('/')}/kcp/v1/sync/artifact/{rid}",
+                    headers=self._KCP_CLIENT_HEADER,
                     timeout=30.0,
                 )
                 if resp.status_code == 200:

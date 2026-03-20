@@ -55,6 +55,31 @@ KCP defines a protocol for **knowledge artifacts** — signed, content-addressed
 | **MCP Bridge** | Python · pytest-asyncio | ✅ **23 tests** | Production-ready |
 | **Total** | | ✅ **220 tests** | All passing |
 
+## Public Peer Network
+
+KCP peers are open nodes anyone can sync with. No account needed.
+
+| Peer | URL | Status | Location |
+|------|-----|--------|----------|
+| peer07 | `https://peer07.kcp-protocol.org` | ✅ Live | DigitalOcean (BRA) |
+| peer01 | `https://peer01.kcp-protocol.org` | ⏳ DNS pending | DigitalOcean (BRA) |
+| peer02 | `https://peer02.kcp-protocol.org` | ⏳ DNS pending | DigitalOcean (BRA) |
+| peer03 | `https://peer03.kcp-protocol.org` | ⏳ DNS pending | DigitalOcean (BRA) |
+| peer04 | `https://peer04.kcp-protocol.org` | ⏳ DNS pending | DigitalOcean (BRA) |
+| peer05 | `https://peer05.kcp-protocol.org` | ⏳ DNS pending | DigitalOcean (BRA) |
+
+```bash
+# Check peer health
+curl https://peer07.kcp-protocol.org/kcp/v1/health
+
+# Add peer and sync
+kcp peer add https://peer07.kcp-protocol.org
+kcp sync https://peer07.kcp-protocol.org --pull
+```
+
+> **Security:** Public peers require the `X-KCP-Client` header on sync operations.
+> The KCP SDK sends this automatically. Rate limits: 20 req/s (read), 10 req/s (write), 5 req/s (sync).
+
 ## Quick Start
 
 ### Install

@@ -206,6 +206,7 @@
             <a href="#problem" class="nav-link">Problema</a>
             <a href="#protocol" class="nav-link">Protocolo</a>
             <a href="#sdks" class="nav-link">SDKs</a>
+            <a href="#peers" class="nav-link">Peers</a>
             <a href="#roadmap" class="nav-link">Roadmap</a>
             <a href="https://github.com/kcp-protocol/kcp" target="_blank" class="nav-cta">⭐ GitHub</a>
         </div>
@@ -227,7 +228,7 @@
         <div class="stats-row fade-up d4">
             <div class="stat-card"><div class="stat-num">4</div><div class="stat-lbl">SDKs + MCP Bridge</div></div>
             <div class="stat-card"><div class="stat-num">220</div><div class="stat-lbl">Testes passando</div></div>
-            <div class="stat-card"><div class="stat-num">MIT</div><div class="stat-lbl">Licença open-source</div></div>
+            <div class="stat-card"><div class="stat-num">1</div><div class="stat-lbl">Peer público live</div></div>
             <div class="stat-card"><div class="stat-num">Ed25519</div><div class="stat-lbl">Assinatura digital</div></div>
         </div>
     </div>
@@ -460,6 +461,41 @@
 </section>
 
 <!-- ROADMAP -->
+<!-- PEERS -->
+<section id="peers" style="background:var(--bg-soft)">
+    <div class="container">
+        <div class="sec-eyebrow fade-up">REDE P2P</div>
+        <h2 class="fade-up">Peers públicos</h2>
+        <p class="sec-desc fade-up">Nós abertos para sync. Sem conta, sem configuração — só apontar e sincronizar.</p>
+        <div style="margin-top:2rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem" class="fade-up">
+            <div style="padding:1.5rem;background:var(--bg-card);border:1.5px solid var(--green-mid);border-radius:var(--radius-lg)">
+                <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1rem">
+                    <span style="font-size:1.25rem">🟢</span>
+                    <div>
+                        <div style="font-weight:700;font-size:.95rem">peer07.kcp-protocol.org</div>
+                        <div style="font-size:.8rem;color:var(--green)">● Live — DigitalOcean BRA</div>
+                    </div>
+                </div>
+                <code style="font-size:.8rem;background:var(--bg-soft);padding:.5rem .75rem;border-radius:6px;display:block;color:var(--text-2)">curl https://peer07.kcp-protocol.org/kcp/v1/health</code>
+            </div>
+            <div style="padding:1.5rem;background:var(--bg-card);border:1.5px solid var(--border);border-radius:var(--radius-lg);opacity:.6">
+                <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1rem">
+                    <span style="font-size:1.25rem">⏳</span>
+                    <div>
+                        <div style="font-weight:700;font-size:.95rem">peer01–05.kcp-protocol.org</div>
+                        <div style="font-size:.8rem;color:var(--text-muted)">DNS propagando — em breve</div>
+                    </div>
+                </div>
+                <div style="font-size:.8rem;color:var(--text-muted)">Mesma infraestrutura · 5 nós reservados</div>
+            </div>
+        </div>
+        <div style="margin-top:1.5rem;padding:1.25rem 1.5rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);font-size:.875rem" class="fade-up">
+            <strong>Segurança dos peers públicos:</strong>
+            <span style="color:var(--text-muted)"> Rate limit (20 req/s leitura · 5 req/s sync) · Header <code>X-KCP-Client</code> obrigatório em sync · SSL/TLS Let's Encrypt · Assinaturas Ed25519 verificadas localmente.</span>
+        </div>
+    </div>
+</section>
+
 <section id="roadmap">
     <div class="container">
         <div class="sec-eyebrow fade-up">ROADMAP</div>
@@ -485,6 +521,8 @@
                     <li>✅ Lineage tracking</li>
                     <li>✅ Multi-tenant ACL</li>
                     <li>✅ MCP Bridge (RFC KCP-002)</li>
+                    <li>✅ Peer público live (peer07.kcp-protocol.org)</li>
+                    <li>✅ HTTP server + sync API (35 testes)</li>
                     <li>☐ Semantic search (vector DB)</li>
                     <li>☐ Artifact TTL + versioning</li>
                     <li>☐ Rust + Java + Kotlin SDKs</li>
@@ -495,8 +533,8 @@
             <div class="roadmap-card fade-up d3">
                 <h3 style="color:var(--text-2)">⚪ Fase 3 — Padrão</h3>
                 <ul>
-                    <li>☐ Cloud peer público (nó de referência)</li>
-                    <li>☐ IPFS + libp2p (P2P)</li>
+                    <li>☐ peer01–06 ativos (multi-região)</li>
+                    <li>☐ IPFS + libp2p (P2P nativo)</li>
                     <li>☐ KCP Native Format (.kcp)</li>
                     <li>☐ RFC submetido (IETF)</li>
                     <li>☐ Paper no ArXiv</li>
