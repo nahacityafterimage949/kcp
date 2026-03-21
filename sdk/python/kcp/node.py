@@ -30,6 +30,7 @@ from .crypto import (
     encrypt_content, decrypt_content, derive_content_key, is_encrypted,
 )
 from .store import LocalStore
+from .sync_worker import SyncWorker
 
 
 class KCPNode:
@@ -59,6 +60,14 @@ class KCPNode:
         self.store.set_config("tenant_id", tenant_id)
         self.store.set_config("public_key", self.public_key.hex())
         self.store.set_config("node_id", self._get_or_create_node_id())
+
+        # Peer sync — parse KCP_PEERS=url1,url2 and start background worker
+        raw_peers = os.environ.get("KCP_PEERS", "")
+        self.peers: list[str] = [p.strip() for p in raw_peers.split(",") if p.strip()]
+        self._sync_worker: Optional[SyncWorker] = None
+        if self.peers:
+            self._sync_worker = SyncWorker(self.store, self.peers)
+            self._sync_worker.start()
 
     @property
     def node_id(self) -> str:
@@ -141,6 +150,10 @@ class KCPNode:
         # Store
         self.store.publish(artifact, content=stored_content, derived_from=derived_from)
 
+        # Enqueue for async delivery to peers (non-blocking)
+        if visibility != "private" and self.peers:
+            self.store.enqueue_sync(artifact.id, self.peers)
+
         return artifact
 
     def get(self, artifact_id: str) -> Optional[KnowledgeArtifact]:
@@ -216,6 +229,20 @@ class KCPNode:
             "kcp_version": "0.2.0",
             "protocol": "KCP/1",
         }
+
+    def sync_status(self) -> dict:
+        """Return sync worker status + per-peer queue stats."""
+        if self._sync_worker:
+            return self._sync_worker.status()
+        return {
+            "running": False,
+            "peers": {},
+        }
+
+    def close(self):
+        """Gracefully stop background workers."""
+        if self._sync_worker:
+            self._sync_worker.stop()
 
     # ─── Peer / Sync ──────────────────────────────────────────
 
@@ -430,8 +457,9 @@ class KCPNode:
 
         @app.post("/kcp/v1/sync/push")
         def sync_receive(body: dict):
+            artifact_id = body.get("id", "")
             is_new = self.store.import_artifact(body)
-            return {"accepted": is_new}
+            return {"accepted": is_new, "id": artifact_id}
 
         # Peers
         @app.get("/kcp/v1/peers")

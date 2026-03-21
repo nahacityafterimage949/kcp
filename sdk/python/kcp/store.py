@@ -92,6 +92,23 @@ CREATE INDEX IF NOT EXISTS idx_artifacts_user ON kcp_artifacts(user_id);
 CREATE INDEX IF NOT EXISTS idx_artifacts_hash ON kcp_artifacts(content_hash);
 CREATE INDEX IF NOT EXISTS idx_artifacts_created ON kcp_artifacts(created_at);
 CREATE INDEX IF NOT EXISTS idx_artifacts_derived ON kcp_artifacts(derived_from);
+
+CREATE TABLE IF NOT EXISTS kcp_sync_queue (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    artifact_id  TEXT NOT NULL,
+    peer_url     TEXT NOT NULL,
+    status       TEXT NOT NULL DEFAULT 'pending',
+    attempts     INTEGER NOT NULL DEFAULT 0,
+    last_attempt TEXT,
+    next_attempt TEXT,
+    acked_at     TEXT,
+    error        TEXT,
+    created_at   TEXT NOT NULL,
+    UNIQUE(artifact_id, peer_url)
+);
+
+CREATE INDEX IF NOT EXISTS idx_sync_queue_status ON kcp_sync_queue(status, next_attempt);
+CREATE INDEX IF NOT EXISTS idx_sync_queue_artifact ON kcp_sync_queue(artifact_id);
 """
 
 FTS_SQL = """
@@ -672,3 +689,106 @@ class LocalStore:
                 return f"{size_bytes:.1f} {unit}"
             size_bytes /= 1024
         return f"{size_bytes:.1f} TB"
+
+    # ─── Sync Queue ────────────────────────────────────────────
+
+    def enqueue_sync(self, artifact_id: str, peer_urls: list) -> int:
+        """
+        Enqueue an artifact for delivery to one or more peers.
+        Uses INSERT OR IGNORE to avoid duplicates.
+        Returns number of new entries added.
+        """
+        conn = self._get_conn()
+        now = datetime.now(timezone.utc).isoformat()
+        added = 0
+        for url in peer_urls:
+            result = conn.execute(
+                "INSERT OR IGNORE INTO kcp_sync_queue "
+                "(artifact_id, peer_url, status, created_at, next_attempt) VALUES (?, ?, 'pending', ?, ?)",
+                (artifact_id, url, now, now),
+            )
+            added += result.rowcount
+        conn.commit()
+        return added
+
+    def dequeue_pending_sync(self, batch_size: int = 10) -> list:
+        """
+        Fetch up to batch_size pending sync items whose next_attempt <= now.
+        Marks them as in_flight atomically.
+        Returns list of dicts with artifact_id, peer_url, attempts, id.
+        """
+        conn = self._get_conn()
+        now = datetime.now(timezone.utc).isoformat()
+        rows = conn.execute(
+            "SELECT id, artifact_id, peer_url, attempts FROM kcp_sync_queue "
+            "WHERE status = 'pending' AND (next_attempt IS NULL OR next_attempt <= ?) "
+            "ORDER BY created_at LIMIT ?",
+            (now, batch_size),
+        ).fetchall()
+        if not rows:
+            return []
+        ids = [r["id"] for r in rows]
+        conn.execute(
+            f"UPDATE kcp_sync_queue SET status = 'in_flight', last_attempt = ? "
+            f"WHERE id IN ({','.join('?' * len(ids))})",
+            [now] + ids,
+        )
+        conn.commit()
+        return [dict(r) for r in rows]
+
+    def ack_sync(self, queue_id: int):
+        """Mark a sync queue entry as successfully delivered (peer ACKed)."""
+        conn = self._get_conn()
+        now = datetime.now(timezone.utc).isoformat()
+        conn.execute(
+            "UPDATE kcp_sync_queue SET status = 'done', acked_at = ?, error = NULL WHERE id = ?",
+            (now, queue_id),
+        )
+        conn.commit()
+
+    def nack_sync(self, queue_id: int, error: str, max_attempts: int = 7):
+        """
+        Mark a sync entry as failed and schedule retry with exponential backoff.
+        After max_attempts, marks as permanently failed.
+        """
+        conn = self._get_conn()
+        row = conn.execute(
+            "SELECT attempts FROM kcp_sync_queue WHERE id = ?", (queue_id,)
+        ).fetchone()
+        if not row:
+            return
+
+        attempts = row["attempts"] + 1
+        now = datetime.now(timezone.utc)
+
+        if attempts >= max_attempts:
+            conn.execute(
+                "UPDATE kcp_sync_queue SET status = 'failed', attempts = ?, error = ? WHERE id = ?",
+                (attempts, error, queue_id),
+            )
+        else:
+            # Exponential backoff: 30s, 2m, 10m, 1h, 6h, 24h
+            delays = [30, 120, 600, 3600, 21600, 86400]
+            delay = delays[min(attempts - 1, len(delays) - 1)]
+            from datetime import timedelta
+            next_attempt = (now + timedelta(seconds=delay)).isoformat()
+            conn.execute(
+                "UPDATE kcp_sync_queue SET status = 'pending', attempts = ?, "
+                "error = ?, next_attempt = ? WHERE id = ?",
+                (attempts, error, next_attempt, queue_id),
+            )
+        conn.commit()
+
+    def sync_queue_stats(self) -> dict:
+        """Return sync queue status counts per peer."""
+        conn = self._get_conn()
+        rows = conn.execute(
+            "SELECT peer_url, status, COUNT(*) as cnt FROM kcp_sync_queue GROUP BY peer_url, status"
+        ).fetchall()
+        peers: dict = {}
+        for row in rows:
+            url = row["peer_url"]
+            if url not in peers:
+                peers[url] = {"pending": 0, "in_flight": 0, "done": 0, "failed": 0}
+            peers[url][row["status"]] = peers[url].get(row["status"], 0) + row["cnt"]
+        return peers

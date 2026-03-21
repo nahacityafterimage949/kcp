@@ -192,6 +192,18 @@ def create_server() -> Server:
                     "properties": {},
                 },
             ),
+            types.Tool(
+                name="kcp_sync_status",
+                description=(
+                    "Returns sync queue state and per-peer replication status. "
+                    "Shows pending/done/failed artifact counts per peer, "
+                    "circuit breaker state, and whether the sync worker is running."
+                ),
+                inputSchema={
+                    "type": "object",
+                    "properties": {},
+                },
+            ),
         ]
 
     # ── Call Tools ────────────────────────────────────────────
@@ -214,6 +226,8 @@ def create_server() -> Server:
                 return await _kcp_list(node, arguments)
             elif name == "kcp_stats":
                 return await _kcp_stats(node, arguments)
+            elif name == "kcp_sync_status":
+                return await _kcp_sync_status(node, arguments)
             else:
                 return [types.TextContent(
                     type="text",
@@ -428,5 +442,18 @@ async def _kcp_stats(node: KCPNode, args: dict) -> list[types.TextContent]:
     stats["artifact_count"] = stats.get("artifacts", 0)
     stats["server"] = "kcp-mcp-server v0.1.0"
     stats["protocol"] = "KCP v0.2 + MCP Bridge (RFC KCP-002)"
-    stats["tools"] = ["kcp_publish", "kcp_search", "kcp_get", "kcp_lineage", "kcp_list", "kcp_stats"]
+    stats["tools"] = ["kcp_publish", "kcp_search", "kcp_get", "kcp_lineage", "kcp_list", "kcp_stats", "kcp_sync_status"]
     return [types.TextContent(type="text", text=json.dumps(stats, indent=2))]
+
+
+async def _kcp_sync_status(node: KCPNode, args: dict) -> list[types.TextContent]:
+    status = node.sync_status()
+    result = {
+        "sync_worker": "running" if status.get("running") else "stopped",
+        "peers": status.get("peers", {}),
+        "tip": (
+            "pending = waiting to sync, in_flight = currently delivering, "
+            "done = confirmed by peer, failed = max retries exceeded"
+        ),
+    }
+    return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
