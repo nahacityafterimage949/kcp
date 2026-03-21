@@ -134,6 +134,56 @@ def render_peer_card(p: dict, i: int) -> str:
     </div>"""
 
 
+CSS = """\
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f172a;--bg-card:#1e293b;--bg-soft:#152032;
+  --border:#334155;--border-strong:#475569;
+  --blue:#3b82f6;--blue-soft:#1e3a5f;
+  --green:#22c55e;--green-soft:#14532d;
+  --red:#ef4444;--amber:#f59e0b;--purple:#a78bfa;
+  --text:#f1f5f9;--text-2:#94a3b8;--text-3:#475569;
+  --radius:8px;--radius-lg:12px;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+code{font-family:'SF Mono','Fira Code',monospace;font-size:.85em;background:var(--bg-soft);padding:.15em .45em;border-radius:3px}
+nav{display:flex;align-items:center;gap:1.5rem;padding:.875rem 2rem;background:var(--bg-card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
+.brand{font-weight:800;font-size:1rem;color:var(--blue);letter-spacing:-.02em;text-decoration:none}
+.nav-link{font-size:.875rem;color:var(--text-2)}
+.nav-link:hover{color:var(--text);text-decoration:none}
+.spacer{flex:1}
+.container{max-width:1080px;margin:0 auto;padding:0 1.5rem}
+section{padding:3.5rem 0}
+h1{font-size:2rem;font-weight:800;letter-spacing:-.03em;line-height:1.15}
+h2{font-size:1.4rem;font-weight:700;margin-bottom:1.25rem}
+.eyebrow{font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:.5rem}
+.sub{color:var(--text-2);font-size:.95rem;margin-top:.5rem;line-height:1.6}
+.status-banner{display:flex;align-items:center;gap:.75rem;padding:.875rem 1.25rem;border-radius:var(--radius-lg);background:var(--green-soft);border:1px solid var(--green);font-weight:600;font-size:.9rem;margin-bottom:2.5rem}
+.status-banner.degraded{background:rgba(245,158,11,.1);border-color:var(--amber)}
+.status-banner.down{background:rgba(239,68,68,.1);border-color:var(--red)}
+.pulse{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(34,197,94,.4);animation:pulse-ring 1.5s infinite}
+@keyframes pulse-ring{0%{box-shadow:0 0 0 0 rgba(34,197,94,.4)}70%{box-shadow:0 0 0 8px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
+.peer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-bottom:2.5rem}
+.peer-card{background:var(--bg-card);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem}
+.peer-card.online{border-color:var(--green)}
+.peer-card.offline{border-color:var(--red)}
+.peer-name{font-weight:700;font-size:1rem;margin-bottom:.25rem}
+.peer-url{font-size:.8rem;color:var(--text-2);font-family:monospace;margin-bottom:.875rem}
+.peer-status{display:flex;align-items:center;gap:.5rem;font-size:.85rem;font-weight:600}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dot.green{background:var(--green)}
+.dot.red{background:var(--red)}
+.peer-meta{margin-top:.875rem;display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.peer-meta-item{background:var(--bg-soft);border-radius:var(--radius);padding:.5rem .75rem;font-size:.8rem}
+.peer-meta-item span{display:block;color:var(--text-3);font-size:.7rem;margin-bottom:.2rem}
+footer{padding:2rem 0;border-top:1px solid var(--border);text-align:center;font-size:.8rem;color:var(--text-3)}
+.static-badge{display:inline-flex;align-items:center;gap:.375rem;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);border-radius:50px;padding:.25rem .75rem;font-size:.7rem;font-weight:600;color:var(--blue);margin-top:.75rem}
+"""
+
+
 def render_html(peers: list[dict], generated_at: datetime) -> str:
     total  = len(peers)
     online = sum(1 for p in peers if p["status"] == "online")
@@ -151,8 +201,8 @@ def render_html(peers: list[dict], generated_at: datetime) -> str:
         banner_msg   = "Todos os peers offline"
         dot_style    = "background:var(--red);animation:none"
 
-    ts_human  = generated_at.strftime("%-d de %B de %Y às %H:%M UTC")
-    ts_iso    = generated_at.isoformat()
+    ts_human   = generated_at.strftime("%-d de %B de %Y às %H:%M UTC")
+    ts_iso     = generated_at.isoformat()
     cards_html = "\n".join(render_peer_card(p, i) for i, p in enumerate(peers))
 
     return f"""<!DOCTYPE html>
@@ -164,59 +214,7 @@ def render_html(peers: list[dict], generated_at: datetime) -> str:
 <meta name="description" content="Status da rede pública KCP — gerado automaticamente pelo VPS a cada 5 minutos.">
 <!-- gerado em: {ts_iso} -->
 <style>
-  *{{box-sizing:border-box;margin:0;padding:0}}
-  :root{{
-    --bg:#0f172a;--bg-card:#1e293b;--bg-soft:#152032;
-    --border:#334155;--border-strong:#475569;
-    --blue:#3b82f6;--blue-soft:#1e3a5f;
-    --green:#22c55e;--green-soft:#14532d;
-    --red:#ef4444;--amber:#f59e0b;--purple:#a78bfa;
-    --text:#f1f5f9;--text-2:#94a3b8;--text-3:#475569;
-    --radius:8px;--radius-lg:12px;
-    --font:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-  }}
-  body{{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}}
-  a{{color:var(--blue);text-decoration:none}}
-  a:hover{{text-decoration:underline}}
-  code{{font-family:'SF Mono','Fira Code',monospace;font-size:.85em;background:var(--bg-soft);padding:.15em .45em;border-radius:3px}}
-
-  nav{{display:flex;align-items:center;gap:1.5rem;padding:.875rem 2rem;background:var(--bg-card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}}
-  .brand{{font-weight:800;font-size:1rem;color:var(--blue);letter-spacing:-.02em;text-decoration:none}}
-  .nav-link{{font-size:.875rem;color:var(--text-2)}}
-  .nav-link:hover{{color:var(--text);text-decoration:none}}
-  .spacer{{flex:1}}
-
-  .container{{max-width:1080px;margin:0 auto;padding:0 1.5rem}}
-  section{{padding:3.5rem 0}}
-
-  h1{{font-size:2rem;font-weight:800;letter-spacing:-.03em;line-height:1.15}}
-  h2{{font-size:1.4rem;font-weight:700;margin-bottom:1.25rem}}
-  .eyebrow{{font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:.5rem}}
-  .sub{{color:var(--text-2);font-size:.95rem;margin-top:.5rem;line-height:1.6}}
-
-  .status-banner{{display:flex;align-items:center;gap:.75rem;padding:.875rem 1.25rem;border-radius:var(--radius-lg);background:var(--green-soft);border:1px solid var(--green);font-weight:600;font-size:.9rem;margin-bottom:2.5rem}}
-  .status-banner.degraded{{background:rgba(245,158,11,.1);border-color:var(--amber)}}
-  .status-banner.down{{background:rgba(239,68,68,.1);border-color:var(--red)}}
-  .pulse{{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(34,197,94,.4);animation:pulse-ring 1.5s infinite}}
-  @keyframes pulse-ring{{0%{{box-shadow:0 0 0 0 rgba(34,197,94,.4)}}70%{{box-shadow:0 0 0 8px rgba(34,197,94,0)}}100%{{box-shadow:0 0 0 0 rgba(34,197,94,0)}}}}}
-
-  .peer-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-bottom:2.5rem}}
-  .peer-card{{background:var(--bg-card);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem}}
-  .peer-card.online{{border-color:var(--green)}}
-  .peer-card.offline{{border-color:var(--red)}}
-  .peer-name{{font-weight:700;font-size:1rem;margin-bottom:.25rem}}
-  .peer-url{{font-size:.8rem;color:var(--text-2);font-family:monospace;margin-bottom:.875rem}}
-  .peer-status{{display:flex;align-items:center;gap:.5rem;font-size:.85rem;font-weight:600}}
-  .dot{{width:8px;height:8px;border-radius:50%;flex-shrink:0}}
-  .dot.green{{background:var(--green)}}
-  .dot.red{{background:var(--red)}}
-  .peer-meta{{margin-top:.875rem;display:grid;grid-template-columns:1fr 1fr;gap:.5rem}}
-  .peer-meta-item{{background:var(--bg-soft);border-radius:var(--radius);padding:.5rem .75rem;font-size:.8rem}}
-  .peer-meta-item span{{display:block;color:var(--text-3);font-size:.7rem;margin-bottom:.2rem}}
-
-  footer{{padding:2rem 0;border-top:1px solid var(--border);text-align:center;font-size:.8rem;color:var(--text-3)}}
-
-  .static-badge{{display:inline-flex;align-items:center;gap:.375rem;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);border-radius:50px;padding:.25rem .75rem;font-size:.7rem;font-weight:600;color:var(--blue);margin-top:.75rem}}
+{CSS}
 </style>
 </head>
 <body>
