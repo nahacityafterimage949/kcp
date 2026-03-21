@@ -386,91 +386,96 @@
 </footer>
 
 <script>
-const PEERS_JSON = '/peers.json';
+// Network status is checked SERVER-SIDE by a KCP peer node.
+// The browser fetches a single aggregated JSON from a well-known peer endpoint —
+// no direct connections to peer hostnames, so VPNs and corporate firewalls
+// cannot produce false negatives.
+const STATUS_ENDPOINTS = [
+  'https://peer04.kcp-protocol.org/kcp/v1/network-status',
+  'https://peer05.kcp-protocol.org/kcp/v1/network-status',
+  'https://peer07.kcp-protocol.org/kcp/v1/network-status',
+];
+
+async function fetchNetworkStatus() {
+  for (const endpoint of STATUS_ENDPOINTS) {
+    try {
+      const r = await fetch(endpoint, { signal: AbortSignal.timeout(10000) });
+      if (!r.ok) continue;
+      const data = await r.json();
+      return data;
+    } catch (_) {
+      // try next endpoint
+    }
+  }
+  return null;
+}
 
 async function loadPeers() {
   const grid = document.getElementById('peer-grid');
-  let peers = [];
 
-  // Try to load from peers.json registry
-  try {
-    const r = await fetch(PEERS_JSON);
-    const data = await r.json();
-    peers = (data.peers || []).filter(p => p.url);
-  } catch(e) {
-    // Fallback: hardcoded live peers
-    peers = [
-      { name: 'peer04', url: 'https://peer04.kcp-protocol.org', region: 'South America' },
-      { name: 'peer05', url: 'https://peer05.kcp-protocol.org', region: 'South America' },
-      { name: 'peer07', url: 'https://peer07.kcp-protocol.org', region: 'South America' },
-    ];
+  // Render skeleton while loading
+  grid.innerHTML = `<div style="color:var(--text-3);font-size:.875rem;padding:.5rem 0">Consultando a rede…</div>`;
+
+  const data = await fetchNetworkStatus();
+
+  if (!data) {
+    grid.innerHTML = `<div style="color:var(--red);font-size:.875rem;padding:.5rem 0">
+      Não foi possível contactar nenhum peer para obter o status da rede.
+    </div>`;
+    updateBanner(0, 0, true);
+    document.getElementById('last-check').textContent = `Atualizado ${new Date().toLocaleTimeString('pt-BR')}`;
+    return;
   }
 
-  // Render skeleton cards
-  grid.innerHTML = peers.map((p, i) => `
-    <div class="peer-card checking" id="card-${i}">
-      <div class="peer-name">${esc(p.name || p.url.replace('https://',''))}</div>
+  const peers = data.peers || [];
+
+  grid.innerHTML = peers.map((p, i) => {
+    const online = p.status === 'online';
+    const cardClass = online ? 'online' : 'offline';
+    const dotClass = online ? 'green' : 'red';
+    const statusText = online ? `● Online — ${p.latency_ms}ms` : '● Offline';
+    const statusColor = online ? 'var(--green)' : 'var(--red)';
+    const displayName = esc(p.name === 'self' ? (p.url.replace('https://','').split('.')[0]) : (p.name || p.url.replace('https://','')));
+    return `
+    <div class="peer-card ${cardClass}" id="card-${i}">
+      <div class="peer-name">${displayName}</div>
       <div class="peer-url">${esc(p.url)}</div>
       <div class="peer-status">
-        <div class="dot amber" id="dot-${i}"></div>
-        <span id="status-${i}">Verificando…</span>
+        <div class="dot ${dotClass}"></div>
+        <span style="color:${statusColor}">${statusText}</span>
       </div>
-      <div class="peer-meta" id="meta-${i}"></div>
+      ${online ? `
+      <div class="peer-meta">
+        <div class="peer-meta-item"><span>Artefatos</span>${p.artifacts ?? '—'}</div>
+        <div class="peer-meta-item"><span>Peers</span>${p.peers ?? '—'}</div>
+        <div class="peer-meta-item"><span>Versão</span>${esc(p.kcp_version || '—')}</div>
+        <div class="peer-meta-item"><span>Latência</span>${p.latency_ms}ms</div>
+      </div>` : ''}
       <div style="margin-top:.875rem">
         <a href="${esc(p.url)}/kcp/v1/health" target="_blank" style="font-size:.75rem;color:var(--blue)">Health ↗</a>
         <span style="color:var(--border);margin:0 .4rem">·</span>
         <a href="${esc(p.url)}/ui" target="_blank" style="font-size:.75rem;color:var(--blue)">Dashboard ↗</a>
-        ${p.peers_url ? `<span style="color:var(--border);margin:0 .4rem">·</span><a href="${esc(p.peers_url)}" target="_blank" style="font-size:.75rem;color:var(--blue)">/peers ↗</a>` : ''}
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 
-  // Check each peer
-  let onlineCount = 0;
-  await Promise.allSettled(peers.map(async (p, i) => {
-    const card = document.getElementById(`card-${i}`);
-    const dot = document.getElementById(`dot-${i}`);
-    const statusEl = document.getElementById(`status-${i}`);
-    const metaEl = document.getElementById(`meta-${i}`);
-    const start = Date.now();
-    try {
-      const r = await fetch(`${p.url}/kcp/v1/health`, { signal: AbortSignal.timeout(8000) });
-      const ms = Date.now() - start;
-      if (!r.ok) throw new Error(r.status);
-      const data = await r.json();
-      onlineCount++;
-      card.classList.remove('checking');
-      card.classList.add('online');
-      dot.className = 'dot green';
-      statusEl.textContent = `● Online — ${ms}ms`;
-      statusEl.style.color = 'var(--green)';
-      metaEl.innerHTML = `
-        <div class="peer-meta-item"><span>Artefatos</span>${data.artifacts ?? '—'}</div>
-        <div class="peer-meta-item"><span>Peers</span>${data.peers ?? '—'}</div>
-        <div class="peer-meta-item"><span>Versão</span>${esc(data.kcp_version ?? '—')}</div>
-        <div class="peer-meta-item"><span>Região</span>${esc(p.region ?? '—')}</div>
-      `;
-    } catch(e) {
-      card.classList.remove('checking');
-      card.classList.add('offline');
-      dot.className = 'dot red';
-      statusEl.textContent = '● Offline';
-      statusEl.style.color = 'var(--red)';
-    }
-  }));
-
-  // Update global banner
-  updateBanner(onlineCount, peers.length);
+  updateBanner(data.online, data.total, false);
   document.getElementById('last-check').textContent = `Atualizado ${new Date().toLocaleTimeString('pt-BR')}`;
 }
 
-function updateBanner(online, total) {
+function updateBanner(online, total, unreachable) {
   const banner = document.getElementById('global-banner');
   const dot = document.getElementById('global-dot');
   const msg = document.getElementById('global-msg');
-  if (online === total) {
+  if (unreachable || total === 0) {
+    banner.className = 'status-banner down';
+    dot.style.background = 'var(--red)';
+    dot.style.animation = 'none';
+    msg.textContent = 'Rede inacessível — nenhum peer respondeu';
+  } else if (online === total) {
     banner.className = 'status-banner';
     dot.style.background = 'var(--green)';
+    dot.style.animation = '';
     msg.textContent = `Todos os sistemas operacionais — ${online}/${total} peers online`;
   } else if (online > 0) {
     banner.className = 'status-banner degraded';
@@ -481,7 +486,7 @@ function updateBanner(online, total) {
     banner.className = 'status-banner down';
     dot.style.background = 'var(--red)';
     dot.style.animation = 'none';
-    msg.textContent = `Todos os peers offline — verificar conectividade`;
+    msg.textContent = `Todos os peers offline`;
   }
 }
 
@@ -492,7 +497,6 @@ function esc(s) {
 }
 
 loadPeers();
-// Auto-refresh every 30s
 setInterval(loadPeers, 30000);
 </script>
 </body>

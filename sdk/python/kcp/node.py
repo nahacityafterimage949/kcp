@@ -636,6 +636,66 @@ class KCPNode:
             )
             return {"accepted": True, "node_id": self.node_id}
 
+        @app.get("/kcp/v1/network-status")
+        def network_status():
+            """
+            Server-side health aggregation of all known peers.
+            Called by status.html so the browser never needs to reach peer hostnames
+            directly — this node probes them internally (localhost or LAN) and
+            returns a single JSON payload with CORS headers.
+            """
+            import urllib.request
+            import urllib.error
+            import time
+
+            # Build probe list: self + all known peers
+            known = self.store.get_peers()
+            self_url = self._self_url()
+            probe_urls: list[dict] = [{"url": self_url, "name": "self"}]
+            for p in known:
+                u = p.get("url", "").rstrip("/")
+                if u and u != self_url.rstrip("/"):
+                    probe_urls.append({"url": u, "name": p.get("name", "")})
+
+            results = []
+            for entry in probe_urls:
+                url = entry["url"].rstrip("/") + "/kcp/v1/health"
+                t0 = time.monotonic()
+                try:
+                    req = urllib.request.Request(url, headers={"User-Agent": "kcp-network-status/1.0"})
+                    with urllib.request.urlopen(req, timeout=5) as resp:
+                        ms = int((time.monotonic() - t0) * 1000)
+                        data = json.loads(resp.read().decode())
+                        results.append({
+                            "name": entry["name"],
+                            "url": entry["url"],
+                            "status": "online",
+                            "latency_ms": ms,
+                            "node_id": data.get("node_id", ""),
+                            "artifacts": data.get("artifacts"),
+                            "peers": data.get("peers"),
+                            "kcp_version": data.get("kcp_version", ""),
+                        })
+                except Exception as e:
+                    ms = int((time.monotonic() - t0) * 1000)
+                    results.append({
+                        "name": entry["name"],
+                        "url": entry["url"],
+                        "status": "offline",
+                        "latency_ms": ms,
+                        "error": str(e)[:120],
+                    })
+
+            online = sum(1 for r in results if r["status"] == "online")
+            total = len(results)
+            return {
+                "checked_at": datetime.now(timezone.utc).isoformat(),
+                "summary": "operational" if online == total else ("degraded" if online > 0 else "down"),
+                "online": online,
+                "total": total,
+                "peers": results,
+            }
+
         # Web UI
         @app.get("/ui", response_class=HTMLResponse)
         def web_ui():
