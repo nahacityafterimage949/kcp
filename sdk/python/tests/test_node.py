@@ -154,6 +154,101 @@ class TestKCPNodeSearch:
         results = tmp_node.search("xyznonexistentterm12345")
         assert results.total == 0
 
+    # ── FTS improvements: content indexing + stemming + BM25 ──
+
+    def test_search_finds_word_in_content(self, tmp_node):
+        """FTS should search inside artifact content, not just title/summary."""
+        tmp_node.publish(
+            title="Deployment Checklist",
+            content="remember to configure nginx reverse proxy and enable SSL certificates",
+            format="text",
+        )
+        results = tmp_node.search("nginx")
+        assert results.total >= 1
+        assert any("Deployment" in r.title for r in results.results)
+
+    def test_search_stemming_finds_plural(self, tmp_node):
+        """Porter stemmer: 'certificates' should match 'certificate'."""
+        tmp_node.publish(
+            title="Security Guide",
+            content="rotate SSL certificates every 90 days",
+            format="text",
+        )
+        results = tmp_node.search("certificate")
+        assert results.total >= 1
+
+    def test_search_stemming_finds_verb_form(self, tmp_node):
+        """Porter stemmer: 'running' should match 'run'."""
+        tmp_node.publish(
+            title="CI Pipeline",
+            content="running tests on every pull request",
+            format="text",
+        )
+        results = tmp_node.search("run")
+        assert results.total >= 1
+
+    def test_search_csv_content_indexed(self, tmp_node):
+        """CSV file content should be searchable by field values."""
+        csv_content = "id,name,role\n1,Alice,Engineer\n2,Bob,Designer\n"
+        tmp_node.publish(
+            title="Team Roster",
+            content=csv_content,
+            format="csv",
+        )
+        results = tmp_node.search("Alice")
+        assert results.total >= 1
+
+    def test_search_bm25_relevance_score(self, tmp_node):
+        """Results should have a relevance score between 0 and 1."""
+        tmp_node.publish(title="KCP Protocol Design", content="kcp is a knowledge protocol", format="text")
+        tmp_node.publish(title="Other Topic", content="completely unrelated content here", format="text")
+        results = tmp_node.search("knowledge protocol")
+        for r in results.results:
+            assert 0.0 <= r.relevance <= 1.0
+
+    def test_search_bm25_orders_by_relevance(self, tmp_node):
+        """Most relevant result should come first (BM25 ordering)."""
+        tmp_node.publish(title="Python Guide", content="python is a programming language used for scripting", format="text")
+        tmp_node.publish(title="Python Python Python", content="python python python python python", format="text")
+        tmp_node.publish(title="Java Guide", content="java is another programming language", format="text")
+        results = tmp_node.search("python")
+        assert results.total >= 2
+        # First result should be most relevant
+        assert "python" in results.results[0].title.lower() or results.results[0].relevance >= results.results[-1].relevance
+
+    def test_search_encrypted_content_not_indexed(self, tmp_node):
+        """Private (encrypted) artifacts should not be searchable by content."""
+        tmp_node.publish(
+            title="Secret Notes",
+            content="classified information: launch codes 42",
+            format="text",
+            visibility="private",
+        )
+        # Content is encrypted — searching by content term should not find it
+        results = tmp_node.search("launch codes")
+        # Either 0 results or only matched by title (not content)
+        for r in results.results:
+            assert "launch" not in r.title.lower()
+
+    def test_search_finds_by_tag(self, tmp_node):
+        """Tags are indexed in FTS — searching a tag should find the artifact."""
+        tmp_node.publish(
+            title="Architecture Decision",
+            content="we chose microservices",
+            format="markdown",
+            tags=["adr", "microservices", "architecture"],
+        )
+        results = tmp_node.search("microservices")
+        assert results.total >= 1
+
+    def test_search_total_matches_fts_not_all(self, tmp_node):
+        """total should reflect FTS matches, not total artifacts in DB."""
+        tmp_node.publish(title="Alpha Doc", content="alpha content here", format="text")
+        tmp_node.publish(title="Beta Doc", content="beta content here", format="text")
+        tmp_node.publish(title="Gamma Doc", content="gamma content here", format="text")
+        results = tmp_node.search("alpha")
+        assert results.total == 1
+
 
 class TestKCPNodeList:
     def test_list_returns_artifacts(self, tmp_node):

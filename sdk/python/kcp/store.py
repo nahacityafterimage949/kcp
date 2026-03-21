@@ -100,8 +100,14 @@ CREATE VIRTUAL TABLE IF NOT EXISTS kcp_fts USING fts5(
     title,
     summary,
     tags,
-    source
+    source,
+    content_text,
+    tokenize = 'porter unicode61'
 );
+"""
+
+FTS_MIGRATE_SQL = """
+ALTER TABLE kcp_fts ADD COLUMN content_text;
 """
 
 
@@ -124,10 +130,50 @@ class LocalStore:
         conn = self._get_conn()
         conn.executescript(SCHEMA_SQL)
         try:
+            # Try to create FTS table fresh
             conn.executescript(FTS_SQL)
         except sqlite3.OperationalError:
             pass  # FTS5 not available — degrade gracefully
+        # Migrate existing FTS tables that lack content_text column
+        try:
+            conn.execute("SELECT content_text FROM kcp_fts LIMIT 1")
+        except sqlite3.OperationalError:
+            # Old schema — rebuild FTS from scratch
+            try:
+                conn.execute("DROP TABLE IF EXISTS kcp_fts")
+                conn.executescript(FTS_SQL)
+                # Re-index existing artifacts
+                self._rebuild_fts(conn)
+            except sqlite3.OperationalError:
+                pass
         conn.commit()
+
+    def _rebuild_fts(self, conn: sqlite3.Connection):
+        """Re-index all artifacts into FTS (used after schema migration)."""
+        rows = conn.execute(
+            "SELECT a.id, a.title, a.summary, a.tags, a.source, c.content "
+            "FROM kcp_artifacts a LEFT JOIN kcp_content c ON a.content_hash = c.content_hash "
+            "WHERE a.deleted_at IS NULL"
+        ).fetchall()
+        for row in rows:
+            content_text = ""
+            if row["content"]:
+                try:
+                    raw = row["content"]
+                    if isinstance(raw, bytes):
+                        # Skip encrypted blobs (magic KCP1)
+                        if not raw[:4] == b"KCP1":
+                            content_text = raw.decode("utf-8", errors="ignore")[:50000]
+                    else:
+                        content_text = str(raw)[:50000]
+                except Exception:
+                    pass
+            conn.execute(
+                "INSERT OR REPLACE INTO kcp_fts (id, title, summary, tags, source, content_text) "
+                "VALUES (?, ?, ?, ?, ?, ?)",
+                (row["id"], row["title"], row["summary"] or "",
+                 row["tags"] or "", row["source"] or "", content_text),
+            )
 
     def _get_conn(self) -> sqlite3.Connection:
         """Get or create SQLite connection."""
@@ -204,16 +250,23 @@ class LocalStore:
             ),
         )
 
-        # Update FTS index
+        # Update FTS index — include content_text for full-content search
         try:
+            # Extract text from content (skip encrypted blobs)
+            content_text = ""
+            if content:
+                if not content[:4] == b"KCP1":
+                    content_text = content.decode("utf-8", errors="ignore")[:50000]
             conn.execute(
-                "INSERT OR REPLACE INTO kcp_fts (id, title, summary, tags, source) VALUES (?, ?, ?, ?, ?)",
+                "INSERT OR REPLACE INTO kcp_fts "
+                "(id, title, summary, tags, source, content_text) VALUES (?, ?, ?, ?, ?, ?)",
                 (
                     artifact.id,
                     artifact.title,
                     artifact.summary or "",
                     " ".join(artifact.tags) if artifact.tags else "",
                     artifact.source or "",
+                    content_text,
                 ),
             )
         except sqlite3.OperationalError:
@@ -302,38 +355,51 @@ class LocalStore:
         limit: int = 20,
         offset: int = 0,
     ) -> SearchResponse:
-        """Full-text search across artifacts."""
+        """
+        Full-text search across artifacts.
+
+        Uses FTS5 with porter stemmer (stemming) and BM25 ranking.
+        Searches: title, summary, tags, source, and full content_text.
+        Falls back to LIKE search if FTS5 is unavailable.
+        """
         conn = self._get_conn()
         start = datetime.now(timezone.utc)
 
+        # Sanitize query for FTS5 — wrap multi-word in quotes to avoid syntax errors
+        fts_query = query.strip()
+        if not fts_query:
+            fts_query = '""'
+
         try:
-            # Try FTS5 first
+            # FTS5 with BM25 ranking — bm25() returns negative, lower = better match
             sql = """
-                SELECT a.*, rank
+                SELECT a.*, bm25(kcp_fts) AS bm25_score
                 FROM kcp_fts f
                 JOIN kcp_artifacts a ON f.id = a.id
                 WHERE kcp_fts MATCH ? AND a.deleted_at IS NULL
             """
-            params: list = [query]
+            params: list = [fts_query]
 
             if tenant_id:
                 sql += " AND a.tenant_id = ?"
                 params.append(tenant_id)
 
-            sql += " ORDER BY rank LIMIT ? OFFSET ?"
+            sql += " ORDER BY bm25_score LIMIT ? OFFSET ?"
             params.extend([limit, offset])
 
             rows = conn.execute(sql, params).fetchall()
+            use_fts = True
 
         except sqlite3.OperationalError:
-            # Fallback: LIKE search
+            # Fallback: LIKE search across all text fields
+            use_fts = False
             sql = """
-                SELECT * FROM kcp_artifacts
+                SELECT *, NULL AS bm25_score FROM kcp_artifacts
                 WHERE deleted_at IS NULL
-                AND (title LIKE ? OR summary LIKE ? OR tags LIKE ?)
+                AND (title LIKE ? OR summary LIKE ? OR tags LIKE ? OR source LIKE ?)
             """
             like = f"%{query}%"
-            params = [like, like, like]
+            params = [like, like, like, like]
 
             if tenant_id:
                 sql += " AND tenant_id = ?"
@@ -348,24 +414,34 @@ class LocalStore:
 
         results = []
         for row in rows:
+            # BM25 is negative — convert to 0.0–1.0 relevance score
+            bm25 = row["bm25_score"] if use_fts and row["bm25_score"] is not None else -1.0
+            relevance = max(0.0, min(1.0, 1.0 / (1.0 + abs(bm25)))) if bm25 != 0 else 1.0
             results.append(
                 SearchResult(
                     id=row["id"],
                     title=row["title"],
                     summary=row["summary"] or "",
                     created_at=row["created_at"],
-                    relevance=1.0,
+                    relevance=round(relevance, 4),
                     format=row["format"],
                 )
             )
 
-        # Count total
-        count_sql = "SELECT COUNT(*) as c FROM kcp_artifacts WHERE deleted_at IS NULL"
-        count_params: list = []
-        if tenant_id:
-            count_sql += " AND tenant_id = ?"
-            count_params.append(tenant_id)
-        total = conn.execute(count_sql, count_params).fetchone()["c"]
+        # Count total matching
+        try:
+            count_sql = """
+                SELECT COUNT(*) as c FROM kcp_fts f
+                JOIN kcp_artifacts a ON f.id = a.id
+                WHERE kcp_fts MATCH ? AND a.deleted_at IS NULL
+            """
+            count_params: list = [fts_query]
+            if tenant_id:
+                count_sql += " AND a.tenant_id = ?"
+                count_params.append(tenant_id)
+            total = conn.execute(count_sql, count_params).fetchone()["c"]
+        except sqlite3.OperationalError:
+            total = len(results)
 
         return SearchResponse(
             results=results,

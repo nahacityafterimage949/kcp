@@ -227,7 +227,7 @@
         </div>
         <div class="stats-row fade-up d4">
             <div class="stat-card"><div class="stat-num">4</div><div class="stat-lbl">SDKs + MCP Bridge</div></div>
-            <div class="stat-card"><div class="stat-num">220</div><div class="stat-lbl">Testes passando</div></div>
+            <div class="stat-card"><div class="stat-num">246</div><div class="stat-lbl">Testes passando</div></div>
             <div class="stat-card"><div class="stat-num">3</div><div class="stat-lbl">Peers públicos live</div></div>
             <div class="stat-card"><div class="stat-num">Ed25519</div><div class="stat-lbl">Assinatura digital</div></div>
         </div>
@@ -498,16 +498,6 @@
                 </div>
                 <code style="font-size:.8rem;background:var(--bg-soft);padding:.5rem .75rem;border-radius:6px;display:block;color:var(--text-2)">curl https://peer07.kcp-protocol.org/kcp/v1/health</code>
             </div>
-            <div style="padding:1.5rem;background:var(--bg-card);border:1.5px solid var(--border);border-radius:var(--radius-lg);opacity:.6">
-                <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1rem">
-                    <span style="font-size:1.25rem">⏳</span>
-                    <div>
-                        <div style="font-weight:700;font-size:.95rem">peer01–03.kcp-protocol.org</div>
-                        <div style="font-size:.8rem;color:var(--text-muted)">DNS propagando — em breve</div>
-                    </div>
-                </div>
-                <div style="font-size:.8rem;color:var(--text-muted)">Mesma infraestrutura · 3 nós reservados</div>
-            </div>
         </div>
         <div style="margin-top:1.5rem;padding:1.25rem 1.5rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);font-size:.875rem" class="fade-up">
             <strong>Segurança dos peers públicos:</strong>
@@ -525,11 +515,13 @@
                 <h3 style="color:var(--green)">✅ Fase 1 — MVP</h3>
                 <ul>
                     <li>✅ Spec do protocolo v0.2</li>
-                    <li>✅ Python SDK — 61 testes</li>
+                    <li>✅ Python SDK — 122 testes</li>
                     <li>✅ TypeScript SDK — 37 testes</li>
                     <li>✅ Go SDK — 64 testes</li>
                     <li>✅ MCP Bridge — 23 testes</li>
-                    <li>✅ Total: 220 testes passando</li>
+                    <li>✅ Total: 246 testes passando</li>
+                    <li>✅ FTS5 + porter stemmer + BM25</li>
+                    <li>✅ AES-256-GCM (conteúdo privado)</li>
                     <li>✅ Demo cross-session (make demo)</li>
                     <li>✅ Demo MCP 6 tools (make demo-mcp)</li>
                     <li>✅ Setup automático para Claude/Cursor/Windsurf</li>
@@ -541,8 +533,10 @@
                     <li>✅ Lineage tracking</li>
                     <li>✅ Multi-tenant ACL</li>
                     <li>✅ MCP Bridge (RFC KCP-002)</li>
-                    <li>✅ Peer público live (peer07.kcp-protocol.org)</li>
+                    <li>✅ Peer público live (peer04/05/07)</li>
                     <li>✅ HTTP server + sync API (35 testes)</li>
+                    <li>✅ AES-256-GCM encryption</li>
+                    <li>✅ FTS5 full-content + stemming + BM25</li>
                     <li>☐ Semantic search (vector DB)</li>
                     <li>☐ Artifact TTL + versioning</li>
                     <li>☐ Rust + Java + Kotlin SDKs</li>
