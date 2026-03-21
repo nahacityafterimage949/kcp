@@ -7,6 +7,7 @@ PartOf=kcp-peers.target
 User=kcp
 WorkingDirectory=/dados/kcp
 Environment=KCP_PEER_ID=peer07
+Environment=KCP_SELF_URL=https://peer07.kcp-protocol.org
 ExecStart=/dados/kcp/sdk/python/.venv/bin/python -c \
     "import sys; sys.path.insert(0,'sdk/python'); \
      from kcp.node import KCPNode; \
