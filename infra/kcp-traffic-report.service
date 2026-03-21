@@ -1,0 +1,25 @@
+[Unit]
+Description=KCP Traffic Reporter — GitHub analytics + peer health via email
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=kcp
+Group=kcp
+
+# Config file — criado no deploy
+EnvironmentFile=/etc/kcp/traffic-report.env
+
+ExecStart=/usr/bin/python3 /dados/kcp/infra/kcp-traffic-report.py --daemon
+
+Restart=on-failure
+RestartSec=60
+
+# Logging via journald
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=kcp-traffic-report
+
+[Install]
+WantedBy=multi-user.target
