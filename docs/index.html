@@ -228,7 +228,7 @@
         </div>
         <div class="stats-row fade-up d4">
             <div class="stat-card"><div class="stat-num">4</div><div class="stat-lbl">SDKs + MCP Bridge</div></div>
-            <div class="stat-card"><div class="stat-num">246</div><div class="stat-lbl">Testes passando</div></div>
+            <div class="stat-card"><div class="stat-num">204</div><div class="stat-lbl">Testes passando</div></div>
             <div class="stat-card"><div class="stat-num">3</div><div class="stat-lbl">Peers públicos live</div></div>
             <div class="stat-card"><div class="stat-num">Ed25519</div><div class="stat-lbl">Assinatura digital</div></div>
         </div>
@@ -682,9 +682,20 @@
                 <code style="font-size:.8rem;background:var(--bg-soft);padding:.5rem .75rem;border-radius:6px;display:block;color:var(--text-2)">curl https://peer07.kcp-protocol.org/kcp/v1/health</code>
             </div>
         </div>
-        <div style="margin-top:1.5rem;padding:1.25rem 1.5rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);font-size:.875rem" class="fade-up">
+        <!-- Arquitetura isolada -->
+        <div style="margin-top:1.5rem;padding:1.25rem 1.5rem;background:var(--bg-card);border:1.5px solid var(--border-strong);border-radius:var(--radius);font-size:.875rem;display:grid;grid-template-columns:1fr 1fr;gap:1.5rem" class="fade-up">
+            <div>
+                <div style="font-weight:700;margin-bottom:.5rem;color:var(--text-2)">🗂️ Dados isolados por peer</div>
+                <div style="color:var(--text-muted);line-height:1.75">Cada peer tem seu próprio banco SQLite e shards de filesystem independentes. Falha ou reset de um nó não afeta os demais.</div>
+            </div>
+            <div>
+                <div style="font-weight:700;margin-bottom:.5rem;color:var(--text-2)">🛡️ Kernel blackhole auto-ban</div>
+                <div style="color:var(--text-muted);line-height:1.75">IPs que excedem rate limit ou omitem <code>X-KCP-Client</code> são silenciados via <code>ip route blackhole</code> com escalada: 1 min → 5 min → 30 min → 3 h → 24 h → permanente.</div>
+            </div>
+        </div>
+        <div style="margin-top:1rem;padding:1.25rem 1.5rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);font-size:.875rem" class="fade-up">
             <strong>Segurança dos peers públicos:</strong>
-            <span style="color:var(--text-muted)"> Rate limit (20 req/s leitura · 5 req/s sync) · Header <code>X-KCP-Client</code> obrigatório em sync · SSL/TLS Let's Encrypt · Assinaturas Ed25519 verificadas localmente.</span>
+            <span style="color:var(--text-muted)"> Rate limit (20 req/s leitura · 5 req/s sync · 10 req/s escrita) · Header <code>X-KCP-Client</code> obrigatório em sync · SSL/TLS Let's Encrypt · Ed25519 verificado localmente · Kernel blackhole automático.</span>
         </div>
     </div>
 </section>
@@ -702,7 +713,7 @@
                     <li>✅ TypeScript SDK — 37 testes</li>
                     <li>✅ Go SDK — 64 testes</li>
                     <li>✅ MCP Bridge — 23 testes</li>
-                    <li>✅ Total: <strong>174 testes passando</strong></li>
+                    <li>✅ Total: <strong>204 testes passando</strong></li>
                     <li>✅ FTS5 + porter stemmer + BM25</li>
                     <li>✅ AES-256-GCM (conteúdo privado)</li>
                     <li>✅ Demo cross-session (make demo)</li>
@@ -724,7 +735,10 @@
                     <li>✅ Circuit breaker por peer</li>
                     <li>✅ Delivery confirmation (ACK)</li>
                     <li>✅ Exponential backoff retry</li>
-                    <li>🔄 Hybrid storage (SQLite + filesystem) <em style="font-size:.8em;color:var(--blue)">[em progresso]</em></li>
+                    <li>✅ Hybrid storage (SQLite + filesystem sharding)</li>
+                    <li>✅ Peers isolados — DB + shards independentes</li>
+                    <li>✅ Kernel blackhole auto-ban (escalada 1 min→∞)</li>
+                    <li>✅ nginx per-hostname routing (multi-instance)</li>
                     <li>☐ Multi-peer replication factor</li>
                     <li>☐ Web dashboard UI</li>
                 </ul>
