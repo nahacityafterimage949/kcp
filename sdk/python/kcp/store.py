@@ -21,6 +21,7 @@ from pathlib import Path
 from typing import Optional
 
 from .models import KnowledgeArtifact, SearchResponse, SearchResult
+from .content_store import ContentStore
 
 
 # ─── Schema ────────────────────────────────────────────────────
@@ -140,6 +141,8 @@ class LocalStore:
         self.db_path = Path(db_path).expanduser()
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self._conn: Optional[sqlite3.Connection] = None
+        # Filesystem content store — sibling dir of the .db file
+        self.content_store = ContentStore(self.db_path.parent)
         self._init_db()
 
     def _init_db(self):
@@ -164,6 +167,8 @@ class LocalStore:
             except sqlite3.OperationalError:
                 pass
         conn.commit()
+        # One-time migration: move BLOBs from kcp_content → filesystem
+        self._migrate_blobs_to_filesystem(conn)
 
     def _rebuild_fts(self, conn: sqlite3.Connection):
         """Re-index all artifacts into FTS (used after schema migration)."""
@@ -231,11 +236,19 @@ class LocalStore:
         """
         conn = self._get_conn()
 
-        # Store content
+        # Store content — filesystem primary, SQLite as fallback index
         if content:
+            # Write to filesystem shard (idempotent)
+            self.content_store.write(
+                artifact.content_hash,
+                content,
+                timestamp=artifact.timestamp,
+            )
+            # Keep kcp_content as a lightweight index (hash + size, no blob)
             conn.execute(
-                "INSERT OR IGNORE INTO kcp_content (content_hash, content, size_bytes) VALUES (?, ?, ?)",
-                (artifact.content_hash, content, len(content)),
+                "INSERT OR IGNORE INTO kcp_content (content_hash, content, size_bytes) "
+                "VALUES (?, ?, ?)",
+                (artifact.content_hash, b"", len(content)),
             )
 
         # Store metadata
@@ -309,13 +322,26 @@ class LocalStore:
         return self._row_to_artifact(row)
 
     def get_content(self, content_hash: str) -> Optional[bytes]:
-        """Retrieve raw content by hash."""
+        """Retrieve raw content by hash — filesystem first, SQLite blob fallback."""
+        # Primary: filesystem shard
+        data = self.content_store.read(content_hash)
+        if data:
+            return data
+
+        # Fallback: legacy SQLite blob (pre-migration data or non-migrated peers)
         conn = self._get_conn()
         row = conn.execute(
             "SELECT content FROM kcp_content WHERE content_hash = ?",
             (content_hash,),
         ).fetchone()
-        return row["content"] if row else None
+        if row and row["content"]:
+            blob = bytes(row["content"])
+            if blob:
+                # Opportunistically migrate to filesystem
+                self.content_store.write(content_hash, blob)
+                return blob
+
+        return None
 
     def delete(self, artifact_id: str, user_id: str = "") -> bool:
         """Soft-delete an artifact."""
@@ -637,6 +663,7 @@ class LocalStore:
         ).fetchone()["s"]
         peers = conn.execute("SELECT COUNT(*) as c FROM kcp_peers").fetchone()["c"]
         db_size = os.path.getsize(str(self.db_path)) if self.db_path.exists() else 0
+        fs_stats = self.content_store.stats()
 
         return {
             "artifacts": artifacts,
@@ -646,9 +673,66 @@ class LocalStore:
             "db_size_bytes": db_size,
             "db_size_human": self._human_size(db_size),
             "db_path": str(self.db_path),
+            "filesystem": {
+                "files": fs_stats["total_files"],
+                "size_bytes": fs_stats["total_bytes"],
+                "size_human": fs_stats["total_bytes_human"],
+                "shards": fs_stats["shard_count"],
+                "content_root": fs_stats["content_root"],
+            },
         }
 
     # ─── Internal ──────────────────────────────────────────────
+
+    def _migrate_blobs_to_filesystem(self, conn: sqlite3.Connection):
+        """
+        One-time migration: copy BLOBs from kcp_content → filesystem shards.
+
+        Runs on every LocalStore init but is fast after first run because
+        the filesystem files already exist (ContentStore.write is idempotent).
+
+        After copying, the BLOB column is cleared to free SQLite page space.
+        The row itself is kept (with content=b'') so size_bytes stays accurate.
+        """
+        import logging
+        log = logging.getLogger("kcp.store.migrate")
+
+        # Find rows that still have a real BLOB (non-empty content)
+        rows = conn.execute(
+            "SELECT content_hash, content FROM kcp_content WHERE length(content) > 0"
+        ).fetchall()
+
+        if not rows:
+            return  # Nothing to migrate
+
+        migrated = 0
+        for row in rows:
+            content_hash = row["content_hash"]
+            blob = bytes(row["content"])
+            if not blob:
+                continue
+
+            # Try to find the artifact's timestamp for correct shard path
+            art_row = conn.execute(
+                "SELECT created_at FROM kcp_artifacts WHERE content_hash = ? LIMIT 1",
+                (content_hash,),
+            ).fetchone()
+            timestamp = art_row["created_at"] if art_row else None
+
+            try:
+                self.content_store.write(content_hash, blob, timestamp=timestamp)
+                # Clear the blob from SQLite — keep the row for size tracking
+                conn.execute(
+                    "UPDATE kcp_content SET content = x'' WHERE content_hash = ?",
+                    (content_hash,),
+                )
+                migrated += 1
+            except Exception as e:
+                log.warning(f"Migration failed for {content_hash[:16]}…: {e}")
+
+        if migrated:
+            conn.commit()
+            log.info(f"Migrated {migrated} blob(s) from SQLite → filesystem")
 
     def _row_to_artifact(self, row: sqlite3.Row) -> KnowledgeArtifact:
         """Convert a database row to KnowledgeArtifact."""

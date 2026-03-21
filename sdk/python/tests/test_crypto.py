@@ -193,8 +193,7 @@ class TestEncryption:
 
 class TestEncryptionEndToEnd:
     def test_private_artifact_stored_encrypted(self, tmp_path):
-        """Private artifact content in SQLite must be ciphertext."""
-        import sqlite3
+        """Private artifact content on disk must be ciphertext (Phase 3: filesystem)."""
         from kcp.node import KCPNode
 
         node = KCPNode(
@@ -210,14 +209,9 @@ class TestEncryptionEndToEnd:
             visibility="private",
         )
 
-        # Read raw blob from SQLite — must NOT be plaintext
-        conn = sqlite3.connect(str(tmp_path / "kcp.db"))
-        row = conn.execute(
-            "SELECT content FROM kcp_content WHERE content_hash = ?",
-            (artifact.content_hash,),
-        ).fetchone()
-        raw_blob = row[0]
-
+        # Read raw bytes from filesystem shard — must NOT be plaintext
+        raw_blob = node.store.content_store.read(artifact.content_hash)
+        assert raw_blob is not None, "Content must exist in filesystem"
         assert raw_blob != secret, "Private content must not be stored as plaintext"
         assert raw_blob[:7] == b"KCPENC1", "Private content must have encryption magic"
 
@@ -237,8 +231,7 @@ class TestEncryptionEndToEnd:
         assert result == secret
 
     def test_public_artifact_not_encrypted(self, tmp_path):
-        """Public artifact content must be stored as plaintext."""
-        import sqlite3
+        """Public artifact content on disk must be plaintext (Phase 3: filesystem)."""
         from kcp.node import KCPNode
 
         node = KCPNode(
@@ -249,12 +242,9 @@ class TestEncryptionEndToEnd:
         content = b"Public knowledge - visible to all"
         artifact = node.publish("Public", content=content, format="text", visibility="public")
 
-        conn = sqlite3.connect(str(tmp_path / "kcp.db"))
-        row = conn.execute(
-            "SELECT content FROM kcp_content WHERE content_hash = ?",
-            (artifact.content_hash,),
-        ).fetchone()
-        assert row[0] == content, "Public content must be stored as plaintext"
+        # Read raw bytes from filesystem shard — must be plaintext
+        raw = node.store.content_store.read(artifact.content_hash)
+        assert raw == content, "Public content must be stored as plaintext"
 
     def test_signature_still_valid_on_private_artifact(self, tmp_path):
         """Ed25519 signature must cover plaintext hash — valid regardless of encryption."""
