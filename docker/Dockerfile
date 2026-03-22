@@ -30,7 +30,8 @@ COPY sdk/python/kcp/ ./kcp/
 # Install SDK with server extras
 RUN pip install --no-cache-dir -e ".[server]"
 
-# Data volume — all peer state lives here
+# Data volume — pre-create with correct ownership so bind mounts work out of the box
+RUN mkdir -p /data && chown kcp:kcp /data
 VOLUME ["/data"]
 
 # Healthcheck
