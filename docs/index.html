@@ -852,10 +852,13 @@
             </div>
             <div style="padding:1.25rem 1.5rem;background:var(--bg-card);border:1.5px solid var(--border-strong);border-radius:var(--radius)">
                 <div style="font-weight:700;margin-bottom:.5rem;color:var(--text-2)">⚡ Quer rodar um peer?</div>
-                <div style="color:var(--text-muted);font-size:.875rem;line-height:1.75;margin-bottom:.875rem">Um peer mínimo custa ~$5–6/mês em qualquer cloud. O software é MIT e roda em qualquer Linux. Você controla seus dados.</div>
-                <code style="font-size:.78rem;background:var(--bg-soft);padding:.5rem .875rem;border-radius:6px;display:block;color:var(--text-2)">git clone kcp-protocol/kcp<br>docker compose up  # em breve</code>
-                <div style="margin-top:.75rem">
-                    <a href="https://github.com/kcp-protocol/kcp/blob/main/rfcs/kcp-004-network-models.md" target="_blank" style="font-size:.8rem;color:var(--blue)">RFC KCP-004 — Modelos de rede →</a>
+                <div style="color:var(--text-muted);font-size:.875rem;line-height:1.75;margin-bottom:.875rem">Um peer mínimo custa ~$5–6/mês em qualquer cloud. O software é MIT e roda em qualquer Linux com Docker. Você controla seus dados.</div>
+                <code style="font-size:.78rem;background:var(--bg-soft);padding:.5rem .875rem;border-radius:6px;display:block;color:var(--text-2)">git clone https://github.com/kcp-protocol/kcp.git<br>cp docker/.env.example docker/.env &amp;&amp; nano docker/.env<br>docker compose -f docker/docker-compose.yml up -d</code>
+                <div style="margin-top:.875rem;display:flex;flex-direction:column;gap:.375rem">
+                    <a href="https://github.com/kcp-protocol/kcp/blob/main/docs/deploy-docker.md" target="_blank" style="font-size:.8rem;color:var(--blue)">📦 Guia Docker (qualquer Linux) →</a>
+                    <a href="https://github.com/kcp-protocol/kcp/blob/main/docs/deploy-digitalocean.md" target="_blank" style="font-size:.8rem;color:var(--blue)">🌊 Guia DigitalOcean (~$6/mês) →</a>
+                    <a href="https://github.com/kcp-protocol/kcp/blob/main/.github/PEER_SUBMISSION.md" target="_blank" style="font-size:.8rem;color:var(--blue)">🌐 Registrar peer na rede pública →</a>
+                    <a href="https://github.com/kcp-protocol/kcp/blob/main/rfcs/kcp-004-network-models.md" target="_blank" style="font-size:.8rem;color:var(--text-muted)">RFC KCP-004 — Modelos de rede →</a>
                 </div>
             </div>
         </div>
@@ -907,19 +910,20 @@
                     <li>✅ Web dashboard UI (artifacts, search, sync, replication)</li>
                 </ul>
             </div>
-            <div class="roadmap-card fade-up d3">
-                <h3 style="color:var(--text-2)">⚪ Fase 3 — Padrão</h3>
+            <div class="roadmap-card fade-up d3" style="border-color:var(--green-mid);background:var(--green-soft)">
+                <h3 style="color:var(--green)">✅ Fase 3 — Rede Comunitária</h3>
                 <ul>
+                    <li>✅ Docker image + docker-compose.yml</li>
+                    <li>✅ Guia deploy Docker (qualquer Linux)</li>
+                    <li>✅ Guia deploy DigitalOcean (~$6/mês)</li>
+                    <li>✅ RFC KCP-004 — modelos de rede</li>
+                    <li>✅ peers.json — submission process (PR + CI)</li>
+                    <li>✅ GitHub Actions — health check automático</li>
+                    <li>✅ 7.052 artefatos na rede (mix público/privado)</li>
+                    <li>✅ Status page estático (cron VPS → GitHub Pages)</li>
+                    <li>☐ Peers multi-região (comunidade)</li>
                     <li>☐ Semantic search (vector embeddings)</li>
-                    <li>☐ Artifact TTL + versioning</li>
-                    <li>☐ Rust + Java + Kotlin SDKs</li>
-                    <li>☐ peer01–06 ativos (multi-região)</li>
                     <li>☐ IPFS + libp2p (P2P nativo)</li>
-                    <li>☐ KCP Native Format (.kcp)</li>
-                    <li>☐ RFC submetido (IETF)</li>
-                    <li>☐ Paper no ArXiv</li>
-                    <li>☐ 100 early adopters</li>
-                    <li>☐ Comunidade global</li>
                 </ul>
             </div>
         </div>
