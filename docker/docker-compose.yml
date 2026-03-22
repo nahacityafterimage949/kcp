@@ -1,0 +1,69 @@
+# KCP Peer Node — Docker Compose
+#
+# Quick start (single peer, porta 8800):
+#   docker compose up -d
+#   curl http://localhost:8800/kcp/v1/health
+#
+# Customizar:
+#   cp .env.example .env
+#   # edite .env com seu NODE_ID, domínio, etc.
+#   docker compose up -d
+#
+# Com nginx + SSL (produção):
+#   docker compose --profile proxy up -d
+
+services:
+  kcp-peer:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: kcp-peer:latest
+    container_name: kcp-peer
+    restart: unless-stopped
+
+    environment:
+      KCP_NODE_ID:    ${KCP_NODE_ID:-my-peer}
+      KCP_USER_ID:    ${KCP_USER_ID:-operator@example.com}
+      KCP_TENANT_ID:  ${KCP_TENANT_ID:-community}
+      KCP_PORT:       ${KCP_PORT:-8800}
+      KCP_HOST:       0.0.0.0
+      KCP_DATA_DIR:   /data
+      KCP_PEERS_URL:  ${KCP_PEERS_URL:-https://kcp-protocol.org/peers.json}
+
+    ports:
+      - "${KCP_PORT:-8800}:${KCP_PORT:-8800}"
+
+    volumes:
+      # IMPORTANTE: em VPS com volume separado, aponte para /dados/kcp-docker/data
+      # Ex: KCP_DATA_HOST=/dados/kcp-docker/data docker compose up -d
+      - ${KCP_DATA_HOST:-./data}:/data
+
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:${KCP_PORT:-8800}/kcp/v1/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ─── Nginx reverse proxy com SSL (profile: proxy) ───────────────────────
+  # Ative com: docker compose --profile proxy up -d
+  # Requer: domínio apontando para este servidor + certbot instalado no host
+  nginx:
+    image: nginx:alpine
+    container_name: kcp-nginx
+    profiles: ["proxy"]
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/kcp.conf:ro
+      - ${SSL_CERT_PATH:-/etc/letsencrypt}:/etc/letsencrypt:ro
+    depends_on:
+      - kcp-peer
