@@ -27,11 +27,13 @@ cd "$REPO"
 
 echo "$LOG_PREFIX === deploy-status start ==="
 
-# 1. Pull latest (silencioso se nada mudou)
+# 1. Pull latest (stash status.html gerado anteriormente se necessário)
 echo "$LOG_PREFIX git pull..."
+git stash --quiet 2>/dev/null || true
 git pull --quiet --rebase origin main 2>&1 || {
   echo "$LOG_PREFIX WARNING: git pull falhou, continuando com estado local"
 }
+git stash pop --quiet 2>/dev/null || true
 
 # 2. Gerar o HTML estático
 echo "$LOG_PREFIX Gerando status.html..."
