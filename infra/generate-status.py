@@ -212,7 +212,6 @@ def render_html(peers: list[dict], generated_at: datetime) -> str:
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>KCP Network Status</title>
 <meta name="description" content="Status da rede pública KCP — gerado automaticamente pelo VPS a cada 5 minutos.">
-<!-- gerado em: {ts_iso} -->
 <style>
 {CSS}
 </style>
