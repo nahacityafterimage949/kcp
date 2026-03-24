@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KCP IP Monitor</title>
+<style>
+:root {
+  --bg: #0B0E14; --card: #151922; --border: #1E2530;
+  --text: #E8E8ED; --muted: #6B7280; --accent: #22C55E;
+  --accent2: #3B82F6; --danger: #EF4444; --warn: #F59E0B;
+  --radius: 12px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+
+/* Header */
+.header { background: var(--card); border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+.header h1 { font-size: 1.3em; font-weight: 700; }
+.header h1 span { color: var(--accent); }
+.header-right { display: flex; align-items: center; gap: 16px; font-size: 0.85em; color: var(--muted); }
+.header-right select { background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 4px 8px; font-size: 0.9em; }
+.live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); display: inline-block; animation: pulse 2s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+/* Container */
+.container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+
+/* Summary cards */
+.summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 24px; }
+.summary-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+.summary-card .label { font-size: 0.8em; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.summary-card .value { font-size: 1.8em; font-weight: 700; margin-top: 4px; }
+.summary-card .value.green { color: var(--accent); }
+.summary-card .value.blue { color: var(--accent2); }
+.summary-card .value.red { color: var(--danger); }
+.summary-card .value.warn { color: var(--warn); }
+
+/* Tabs */
+.tabs { display: flex; gap: 4px; margin-bottom: 20px; background: var(--card); border-radius: var(--radius); padding: 4px; flex-wrap: wrap; }
+.tab { padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.9em; color: var(--muted); transition: all 0.2s; border: none; background: none; }
+.tab:hover { color: var(--text); }
+.tab.active { background: var(--accent); color: #000; font-weight: 600; }
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* Tables */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.88em; }
+th { text-align: left; padding: 10px 12px; color: var(--muted); font-weight: 600; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; white-space: nowrap; }
+th:hover { color: var(--text); }
+th .sort-arrow { margin-left: 4px; opacity: 0.4; }
+th.sorted .sort-arrow { opacity: 1; color: var(--accent); }
+td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+tr:hover { background: rgba(255,255,255,0.02); }
+tr.highlight-red { background: rgba(239,68,68,0.08); }
+tr.highlight-warn { background: rgba(245,158,11,0.08); }
+
+/* Badges */
+.badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.78em; font-weight: 600; }
+.badge-get { background: rgba(59,130,246,0.15); color: var(--accent2); }
+.badge-post { background: rgba(34,197,94,0.15); color: var(--accent); }
+.badge-429 { background: rgba(245,158,11,0.15); color: var(--warn); }
+.badge-ban { background: rgba(239,68,68,0.15); color: var(--danger); }
+.badge-zone { background: rgba(139,92,246,0.15); color: #A78BFA; }
+
+/* IP mono */
+.ip { font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.9em; }
+
+/* User agent */
+.ua { max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: 0.82em; }
+
+/* Method pills */
+.methods { display: flex; gap: 4px; flex-wrap: wrap; }
+
+/* Status bar */
+.status-bar { display: flex; height: 6px; border-radius: 3px; overflow: hidden; margin-top: 8px; }
+.status-bar .segment { transition: width 0.3s; }
+
+/* Sparkline */
+.sparkline { display: flex; align-items: flex-end; gap: 1px; height: 40px; }
+.sparkline .bar { background: var(--accent2); border-radius: 1px; min-width: 3px; transition: height 0.3s; opacity: 0.7; }
+.sparkline .bar:hover { opacity: 1; }
+
+/* Timer */
+.timer-bar { height: 3px; background: var(--accent); transition: width linear; position: fixed; top: 0; left: 0; z-index: 100; }
+
+/* Toast */
+.toast { position: fixed; bottom: 20px; right: 20px; background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 12px 20px; border-radius: 8px; font-size: 0.85em; z-index: 200; display: none; }
+
+/* Empty */
+.empty { text-align: center; padding: 40px; color: var(--muted); }
+
+/* Footer */
+.footer { text-align: center; padding: 20px; color: var(--muted); font-size: 0.8em; border-top: 1px solid var(--border); margin-top: 40px; }
+
+@media (max-width: 768px) {
+  .summary { grid-template-columns: repeat(2, 1fr); }
+  .header { flex-wrap: wrap; gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div class="timer-bar" id="timer-bar"></div>
+
+<div class="header">
+  <h1>🔍 KCP <span>IP Monitor</span></h1>
+  <div class="header-right">
+    <span><span class="live-dot"></span> Live</span>
+    <select id="time-window" title="Time window">
+      <option value="15">Last 15 min</option>
+      <option value="60" selected>Last 1 hour</option>
+      <option value="360">Last 6 hours</option>
+      <option value="1440">Last 24 hours</option>
+    </select>
+    <span id="last-update">—</span>
+  </div>
+</div>
+
+<div class="container">
+  <!-- Summary -->
+  <div class="summary">
+    <div class="summary-card">
+      <div class="label">Total Requests</div>
+      <div class="value blue" id="s-total">—</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">Unique IPs</div>
+      <div class="value green" id="s-unique">—</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">Rate Limited</div>
+      <div class="value warn" id="s-ratelimited">—</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">Banned IPs</div>
+      <div class="value red" id="s-banned">—</div>
+    </div>
+  </div>
+
+  <!-- Status codes bar -->
+  <div class="summary-card" style="margin-bottom: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div class="label">Status Code Distribution</div>
+      <div id="status-legend" style="display: flex; gap: 12px; font-size: 0.8em;"></div>
+    </div>
+    <div class="status-bar" id="status-bar"></div>
+  </div>
+
+  <!-- Sparkline: requests/min -->
+  <div class="summary-card" style="margin-bottom: 24px;">
+    <div class="label" style="margin-bottom: 8px;">Requests per Minute</div>
+    <div class="sparkline" id="sparkline"></div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" data-tab="ips">🌐 Top IPs</button>
+    <button class="tab" data-tab="endpoints">📍 Endpoints</button>
+    <button class="tab" data-tab="ratelimited">⚠️ Rate Limited</button>
+    <button class="tab" data-tab="banned">🚫 Banned</button>
+    <button class="tab" data-tab="peers">📡 Per Peer</button>
+  </div>
+
+  <!-- Top IPs Panel -->
+  <div class="panel active" id="panel-ips">
+    <div class="table-wrap">
+      <table id="table-ips">
+        <thead>
+          <tr>
+            <th data-col="rank">#</th>
+            <th data-col="ip" class="sorted">IP <span class="sort-arrow">▼</span></th>
+            <th data-col="requests">Requests <span class="sort-arrow">▼</span></th>
+            <th data-col="bytes">Bytes <span class="sort-arrow">▼</span></th>
+            <th data-col="methods">Methods</th>
+            <th data-col="errors">4xx/5xx</th>
+            <th data-col="last_seen">Last Seen</th>
+            <th data-col="ua">User Agent</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-ips"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Endpoints Panel -->
+  <div class="panel" id="panel-endpoints">
+    <div class="table-wrap">
+      <table id="table-endpoints">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Endpoint</th>
+            <th>Requests</th>
+            <th>Methods</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-endpoints"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Rate Limited Panel -->
+  <div class="panel" id="panel-ratelimited">
+    <div class="table-wrap">
+      <table id="table-rl">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>IP</th>
+            <th>Events</th>
+            <th>Zones</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-rl"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Banned Panel -->
+  <div class="panel" id="panel-banned">
+    <div class="table-wrap">
+      <table id="table-banned">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>IP</th>
+            <th>Action</th>
+            <th>Source</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-banned"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Per Peer Panel -->
+  <div class="panel" id="panel-peers">
+    <div id="peer-cards" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;"></div>
+  </div>
+
+  <div class="footer">
+    KCP IP Monitor — Auto-refresh every 10 seconds — Portal Admin only
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API_BASE = window.location.origin;
+const REFRESH_INTERVAL = 10_000; // 10 seconds
+let timerInterval;
+let data = null;
+
+// ── Tabs ──
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+// ── Helpers ──
+function fmtBytes(b) {
+  if (b < 1024) return b + ' B';
+  if (b < 1024*1024) return (b/1024).toFixed(1) + ' KB';
+  return (b/(1024*1024)).toFixed(1) + ' MB';
+}
+function fmtTime(iso) {
+  if (!iso) return '—';
+  try {
+    const d = new Date(iso);
+    return d.toLocaleTimeString('en-US', {hour12:false, hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  } catch { return iso; }
+}
+function methodBadge(method) {
+  const cls = method === 'GET' ? 'badge-get' : method === 'POST' ? 'badge-post' : 'badge-429';
+  return `<span class="badge ${cls}">${method}</span>`;
+}
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 3000);
+}
+
+// ── Fetch ──
+async function fetchStats() {
+  const minutes = document.getElementById('time-window').value;
+  try {
+    const res = await fetch(`${API_BASE}/api/stats?minutes=${minutes}`);
+    if (!res.ok) throw new Error(res.statusText);
+    data = await res.json();
+    render(data);
+    document.getElementById('last-update').textContent = 
+      'Updated ' + new Date().toLocaleTimeString('en-US', {hour12:false});
+  } catch (err) {
+    toast('⚠️ Failed to fetch: ' + err.message);
+  }
+}
+
+// ── Render ──
+function render(d) {
+  // Summary
+  document.getElementById('s-total').textContent = d.total_requests.toLocaleString();
+  document.getElementById('s-unique').textContent = d.unique_ips.toLocaleString();
+  document.getElementById('s-ratelimited').textContent = d.rate_limited.length.toString();
+  document.getElementById('s-banned').textContent = d.banned.length.toString();
+  
+  // Status bar
+  const codes = d.status_codes || {};
+  const total = Object.values(codes).reduce((a,b) => a+b, 0) || 1;
+  const groups = {
+    '2xx': { count: 0, color: '#22C55E' },
+    '3xx': { count: 0, color: '#3B82F6' },
+    '4xx': { count: 0, color: '#F59E0B' },
+    '5xx': { count: 0, color: '#EF4444' },
+  };
+  for (const [code, cnt] of Object.entries(codes)) {
+    const c = parseInt(code);
+    if (c >= 200 && c < 300) groups['2xx'].count += cnt;
+    else if (c >= 300 && c < 400) groups['3xx'].count += cnt;
+    else if (c >= 400 && c < 500) groups['4xx'].count += cnt;
+    else if (c >= 500) groups['5xx'].count += cnt;
+  }
+  let barHtml = '';
+  let legendHtml = '';
+  for (const [label, g] of Object.entries(groups)) {
+    const pct = (g.count / total * 100).toFixed(1);
+    if (g.count > 0) {
+      barHtml += `<div class="segment" style="width:${pct}%;background:${g.color}" title="${label}: ${g.count} (${pct}%)"></div>`;
+      legendHtml += `<span style="color:${g.color}">● ${label}: ${g.count}</span>`;
+    }
+  }
+  document.getElementById('status-bar').innerHTML = barHtml;
+  document.getElementById('status-legend').innerHTML = legendHtml;
+  
+  // Sparkline
+  const rpm = d.requests_per_minute || {};
+  const keys = Object.keys(rpm).sort();
+  const maxRpm = Math.max(...Object.values(rpm), 1);
+  let sparkHtml = '';
+  for (const k of keys.slice(-60)) { // last 60 minutes
+    const h = Math.max(2, (rpm[k] / maxRpm) * 40);
+    sparkHtml += `<div class="bar" style="height:${h}px;flex:1" title="${k}: ${rpm[k]} req"></div>`;
+  }
+  document.getElementById('sparkline').innerHTML = sparkHtml || '<span class="empty">No data yet</span>';
+  
+  // Top IPs
+  renderIPs(d.top_ips);
+  
+  // Endpoints
+  renderEndpoints(d.top_endpoints);
+  
+  // Rate limited
+  renderRateLimited(d.rate_limited);
+  
+  // Banned
+  renderBanned(d.banned);
+  
+  // Per peer
+  renderPeers(d.requests_per_peer);
+}
+
+function renderIPs(ips) {
+  const tbody = document.getElementById('tbody-ips');
+  if (!ips || !ips.length) {
+    tbody.innerHTML = '<tr><td colspan="8" class="empty">No requests in this window</td></tr>';
+    return;
+  }
+  tbody.innerHTML = ips.map((ip, i) => {
+    const methods = Object.entries(ip.methods || {}).map(([m,c]) => `${methodBadge(m)} ${c}`).join(' ');
+    const hasErrors = ip.errors_4xx > 0 || ip.errors_5xx > 0;
+    const rowClass = ip.errors_5xx > 5 ? 'highlight-red' : (ip.errors_4xx > 10 ? 'highlight-warn' : '');
+    return `<tr class="${rowClass}">
+      <td>${i+1}</td>
+      <td class="ip">${ip.ip}</td>
+      <td><strong>${ip.requests.toLocaleString()}</strong></td>
+      <td>${fmtBytes(ip.bytes)}</td>
+      <td class="methods">${methods}</td>
+      <td>${hasErrors ? `<span style="color:var(--warn)">${ip.errors_4xx}</span> / <span style="color:var(--danger)">${ip.errors_5xx}</span>` : '—'}</td>
+      <td>${fmtTime(ip.last_seen)}</td>
+      <td class="ua" title="${ip.user_agent || ''}">${ip.user_agent || '—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderEndpoints(eps) {
+  const tbody = document.getElementById('tbody-endpoints');
+  if (!eps || !eps.length) {
+    tbody.innerHTML = '<tr><td colspan="4" class="empty">No requests in this window</td></tr>';
+    return;
+  }
+  tbody.innerHTML = eps.map((ep, i) => {
+    const methods = Object.entries(ep.methods || {}).map(([m,c]) => `${methodBadge(m)} ${c}`).join(' ');
+    return `<tr>
+      <td>${i+1}</td>
+      <td class="ip">${ep.path}</td>
+      <td><strong>${ep.requests.toLocaleString()}</strong></td>
+      <td class="methods">${methods}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderRateLimited(rls) {
+  const tbody = document.getElementById('tbody-rl');
+  if (!rls || !rls.length) {
+    tbody.innerHTML = '<tr><td colspan="4" class="empty">✅ No rate-limited IPs in this window</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rls.map((rl, i) => {
+    const zones = Object.entries(rl.zones || {}).map(([z,c]) => `<span class="badge badge-zone">${z}: ${c}</span>`).join(' ');
+    return `<tr class="highlight-warn">
+      <td>${i+1}</td>
+      <td class="ip">${rl.ip}</td>
+      <td><strong>${rl.total_events}</strong></td>
+      <td>${zones}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderBanned(bans) {
+  const tbody = document.getElementById('tbody-banned');
+  if (!bans || !bans.length) {
+    tbody.innerHTML = '<tr><td colspan="4" class="empty">✅ No banned IPs</td></tr>';
+    return;
+  }
+  tbody.innerHTML = bans.map((b, i) => {
+    return `<tr class="highlight-red">
+      <td>${i+1}</td>
+      <td class="ip">${b.ip}</td>
+      <td><span class="badge badge-ban">${b.action}</span></td>
+      <td>${b.source}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderPeers(peers) {
+  const el = document.getElementById('peer-cards');
+  if (!peers || !Object.keys(peers).length) {
+    el.innerHTML = '<div class="empty">No peer data</div>';
+    return;
+  }
+  const maxReqs = Math.max(...Object.values(peers), 1);
+  el.innerHTML = Object.entries(peers).sort().map(([peer, count]) => {
+    const pct = (count / maxReqs * 100).toFixed(0);
+    return `<div class="summary-card">
+      <div class="label">${peer}</div>
+      <div class="value blue" style="font-size:1.4em">${count.toLocaleString()}</div>
+      <div style="background:var(--border);border-radius:3px;height:4px;margin-top:8px;">
+        <div style="background:var(--accent2);height:100%;border-radius:3px;width:${pct}%"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Timer bar ──
+function startTimer() {
+  clearInterval(timerInterval);
+  const bar = document.getElementById('timer-bar');
+  let elapsed = 0;
+  bar.style.width = '0%';
+  timerInterval = setInterval(() => {
+    elapsed += 100;
+    bar.style.width = (elapsed / REFRESH_INTERVAL * 100) + '%';
+    if (elapsed >= REFRESH_INTERVAL) {
+      elapsed = 0;
+      bar.style.width = '0%';
+      fetchStats();
+    }
+  }, 100);
+}
+
+// ── Init ──
+document.getElementById('time-window').addEventListener('change', () => {
+  fetchStats();
+});
+
+fetchStats();
+startTimer();
+</script>
+</body>
+</html>

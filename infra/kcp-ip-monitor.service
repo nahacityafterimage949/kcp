@@ -1,0 +1,19 @@
+[Unit]
+Description=KCP IP Monitor — Real-time nginx log analyser
+After=network.target nginx.service
+PartOf=kcp-peers.target
+
+[Service]
+User=root
+WorkingDirectory=/dados/kcp
+Environment=LOG_DIR=/var/log/nginx
+Environment=IP_MONITOR_PORT=9100
+Environment=PEER_COUNT=7
+ExecStart=/dados/kcp/sdk/python/.venv/bin/python /dados/kcp/infra/ip_monitor.py
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
