@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Knowledge Context Protocol — TypeScript SDK",
   "keywords": ["ai", "protocol", "knowledge-management", "governance", "layer8"],
-  "author": "Thiago Silva <tgosoul@gmail.com>",
+  "author": "Thiago Silva <contato@kcp-protocol.org>",
   "license": "MIT",
   "homepage": "https://github.com/kcp-protocol/kcp",
   "repository": {

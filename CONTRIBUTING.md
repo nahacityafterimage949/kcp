@@ -103,4 +103,4 @@ Be respectful. Be constructive. Focus on the ideas, not the person.
 
 ## Questions?
 
-Open an issue or reach out to tgosoul@gmail.com.
+Open an issue or reach out to contato@kcp-protocol.org.

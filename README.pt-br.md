@@ -227,7 +227,7 @@ MIT License — veja arquivo [LICENSE](LICENSE).
 ## 📬 Contato
 
 - **Autor:** Thiago Silva ([@tgosoul2019](https://github.com/tgosoul2019))
-- **Email:** tgosoul@gmail.com
+- **Email:** contato@kcp-protocol.org
 - **Status:** Projeto open-source pessoal
 
 ---

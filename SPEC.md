@@ -11,7 +11,7 @@ updated: "2026-03-22"
 
 **Status:** Draft  
 **Date:** March 2026  
-**Author:** Thiago Silva (tgosoul@gmail.com)
+**Author:** Thiago Silva (contato@kcp-protocol.org)
 
 ---
 

@@ -2,7 +2,7 @@
 
 **Status:** Draft — Active  
 **Date:** 2026-03-20  
-**Author:** Thiago Silva (tgosoul@gmail.com)  
+**Author:** Thiago Silva (contato@kcp-protocol.org)  
 **See also:** [rfcs/kcp-001-core.md](rfcs/kcp-001-core.md) — full IETF-style RFC
 
 ---

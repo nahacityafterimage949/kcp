@@ -617,6 +617,6 @@ Table of Contents
 Authors' Addresses
 
    Thiago Silva
-   Email: tgosoul@gmail.com
+   Email: contato@kcp-protocol.org
    GitHub: https://github.com/kcp-protocol/kcp
 ```
