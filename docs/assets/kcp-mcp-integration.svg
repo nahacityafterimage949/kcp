@@ -1,0 +1,312 @@
+<svg viewBox="0 0 1200 627" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f172a"/>
+      <stop offset="100%" style="stop-color:#1e1b4b"/>
+    </linearGradient>
+    
+    <linearGradient id="kcpGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1"/>
+      <stop offset="100%" style="stop-color:#8b5cf6"/>
+    </linearGradient>
+    
+    <linearGradient id="mcpGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#22c55e"/>
+      <stop offset="100%" style="stop-color:#10b981"/>
+    </linearGradient>
+    
+    <linearGradient id="sessionGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e293b"/>
+      <stop offset="100%" style="stop-color:#0f172a"/>
+    </linearGradient>
+    
+    <linearGradient id="dataFlowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#6366f1"/>
+      <stop offset="50%" style="stop-color:#8b5cf6"/>
+      <stop offset="100%" style="stop-color:#6366f1"/>
+    </linearGradient>
+    
+    <!-- Patterns -->
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#334155" stroke-width="0.3" opacity="0.4"/>
+    </pattern>
+    
+    <pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="10" cy="10" r="1" fill="#6366f1" opacity="0.2"/>
+    </pattern>
+    
+    <!-- Filters -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+    
+    <!-- Arrow Marker -->
+    <marker id="arrowKCP" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#8b5cf6"/>
+    </marker>
+    
+    <marker id="arrowMCP" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#22c55e"/>
+    </marker>
+  </defs>
+  
+  <!-- Background -->
+  <rect fill="url(#bgGradient)" width="1200" height="627"/>
+  <rect fill="url(#grid)" width="1200" height="627"/>
+  
+  <!-- Title Section -->
+  <g transform="translate(600, 35)">
+    <text x="0" y="0" fill="white" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="28" font-weight="700">
+      KCP + MCP Integration
+    </text>
+    <text x="0" y="28" fill="#94a3b8" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="14">
+      Cross-Session Knowledge Persistence &amp; Discovery
+    </text>
+  </g>
+  
+  <!-- ==================== SESSION 1 (Left) ==================== -->
+  <g transform="translate(60, 90)" filter="url(#shadow)">
+    <!-- Session Container -->
+    <rect x="0" y="0" width="320" height="420" rx="16" fill="url(#sessionGradient)" stroke="#334155" stroke-width="2"/>
+    
+    <!-- Session Header -->
+    <rect x="0" y="0" width="320" height="50" rx="16" fill="#1e293b"/>
+    <rect x="0" y="35" width="320" height="15" fill="#1e293b"/>
+    <circle cx="24" cy="25" r="6" fill="#ef4444"/>
+    <circle cx="46" cy="25" r="6" fill="#f59e0b"/>
+    <circle cx="68" cy="25" r="6" fill="#22c55e"/>
+    <text x="160" y="30" fill="#94a3b8" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="500">
+      Session 1 - Morning
+    </text>
+    
+    <!-- User -->
+    <g transform="translate(20, 70)">
+      <rect x="0" y="0" width="280" height="50" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+      <text x="50" y="30" fill="white" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="500">👤 Developer</text>
+      <text x="200" y="30" fill="#64748b" font-family="Inter, system-ui, sans-serif" font-size="11">asks question</text>
+    </g>
+    
+    <!-- LLM/Agent -->
+    <g transform="translate(20, 135)">
+      <rect x="0" y="0" width="280" height="70" rx="10" fill="#1e293b" stroke="#22c55e" stroke-width="2"/>
+      <text x="140" y="25" fill="#22c55e" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="600">🤖 AI Agent (Claude/GPT)</text>
+      <text x="140" y="48" fill="#94a3b8" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="11">Generates knowledge artifact</text>
+      <text x="140" y="62" fill="#64748b" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10">"API integration solution"</text>
+    </g>
+    
+    <!-- MCP Server -->
+    <g transform="translate(20, 220)">
+      <rect x="0" y="0" width="280" height="60" rx="10" fill="#0f172a" stroke="#22c55e" stroke-width="1.5" stroke-dasharray="4,2"/>
+      <text x="140" y="25" fill="#22c55e" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="600">⚡ MCP Server</text>
+      <text x="140" y="45" fill="#64748b" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10">Tools, Resources, Prompts</text>
+    </g>
+    
+    <!-- KCP Client -->
+    <g transform="translate(20, 295)">
+      <rect x="0" y="0" width="280" height="70" rx="10" fill="#1e293b" stroke="url(#kcpGradient)" stroke-width="2" filter="url(#softGlow)"/>
+      <text x="140" y="25" fill="#8b5cf6" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="600">🔐 KCP Client</text>
+      <text x="140" y="45" fill="#94a3b8" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10">Sign → Publish → Persist</text>
+      <text x="140" y="60" fill="#6366f1" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9">artifact:sha256:a1b2c3...</text>
+    </g>
+    
+    <!-- Arrows inside Session 1 -->
+    <g stroke="#475569" stroke-width="1.5" fill="none">
+      <path d="M 160 120 L 160 135" marker-end="url(#arrowMCP)"/>
+      <path d="M 160 205 L 160 220" marker-end="url(#arrowMCP)"/>
+      <path d="M 160 280 L 160 295" marker-end="url(#arrowKCP)"/>
+    </g>
+    
+    <!-- Status Badge -->
+    <g transform="translate(200, 380)">
+      <rect x="0" y="0" width="100" height="24" rx="12" fill="#22c55e" fill-opacity="0.2"/>
+      <text x="50" y="16" fill="#22c55e" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10" font-weight="500">✓ Published</text>
+    </g>
+  </g>
+  
+  <!-- ==================== KCP NETWORK (Center) ==================== -->
+  <g transform="translate(440, 140)">
+    <!-- Central KCP Cloud -->
+    <ellipse cx="160" cy="180" rx="140" ry="160" fill="#6366f1" fill-opacity="0.05" stroke="#6366f1" stroke-width="1" stroke-dasharray="8,4"/>
+    
+    <!-- KCP Logo/Title -->
+    <g transform="translate(160, 60)">
+      <rect x="-60" y="-25" width="120" height="50" rx="25" fill="url(#kcpGradient)" filter="url(#glow)"/>
+      <text x="0" y="8" fill="white" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="20" font-weight="800">KCP</text>
+    </g>
+    
+    <!-- Network Label -->
+    <text x="160" y="105" fill="#94a3b8" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="11">
+      Distributed Knowledge Network
+    </text>
+    
+    <!-- Artifacts floating in network -->
+    <g>
+      <!-- Artifact 1 -->
+      <g transform="translate(80, 140)">
+        <rect x="0" y="0" width="70" height="45" rx="6" fill="#1e293b" stroke="#6366f1" stroke-width="1"/>
+        <text x="35" y="18" fill="#8b5cf6" text-anchor="middle" font-size="14">📄</text>
+        <text x="35" y="35" fill="#64748b" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="8">artifact</text>
+      </g>
+      
+      <!-- Artifact 2 -->
+      <g transform="translate(170, 130)">
+        <rect x="0" y="0" width="70" height="45" rx="6" fill="#1e293b" stroke="#22c55e" stroke-width="1"/>
+        <text x="35" y="18" fill="#22c55e" text-anchor="middle" font-size="14">💻</text>
+        <text x="35" y="35" fill="#64748b" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="8">code</text>
+      </g>
+      
+      <!-- Artifact 3 -->
+      <g transform="translate(125, 200)">
+        <rect x="0" y="0" width="70" height="45" rx="6" fill="#1e293b" stroke="#f59e0b" stroke-width="1"/>
+        <text x="35" y="18" fill="#f59e0b" text-anchor="middle" font-size="14">🔗</text>
+        <text x="35" y="35" fill="#64748b" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="8">linked</text>
+      </g>
+    </g>
+    
+    <!-- Storage indicator -->
+    <g transform="translate(95, 280)">
+      <rect x="0" y="0" width="130" height="40" rx="8" fill="#0f172a" stroke="#475569" stroke-width="1"/>
+      <text x="65" y="18" fill="#94a3b8" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10">💾 Persistent Storage</text>
+      <text x="65" y="32" fill="#64748b" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9">DHT + Local Cache</text>
+    </g>
+    
+    <!-- Features list -->
+    <g transform="translate(60, 340)" font-family="Inter, system-ui, sans-serif" font-size="9">
+      <text x="0" y="0" fill="#6366f1">✓ Cryptographic signatures</text>
+      <text x="0" y="16" fill="#6366f1">✓ Content-addressable</text>
+      <text x="0" y="32" fill="#6366f1">✓ Cross-session persistence</text>
+      <text x="130" y="0" fill="#6366f1">✓ Provenance tracking</text>
+      <text x="130" y="16" fill="#6366f1">✓ Semantic discovery</text>
+      <text x="130" y="32" fill="#6366f1">✓ Version linking</text>
+    </g>
+  </g>
+  
+  <!-- ==================== SESSION 2 (Right) ==================== -->
+  <g transform="translate(820, 90)" filter="url(#shadow)">
+    <!-- Session Container -->
+    <rect x="0" y="0" width="320" height="420" rx="16" fill="url(#sessionGradient)" stroke="#334155" stroke-width="2"/>
+    
+    <!-- Session Header -->
+    <rect x="0" y="0" width="320" height="50" rx="16" fill="#1e293b"/>
+    <rect x="0" y="35" width="320" height="15" fill="#1e293b"/>
+    <circle cx="24" cy="25" r="6" fill="#ef4444"/>
+    <circle cx="46" cy="25" r="6" fill="#f59e0b"/>
+    <circle cx="68" cy="25" r="6" fill="#22c55e"/>
+    <text x="160" y="30" fill="#94a3b8" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="500">
+      Session 2 - Afternoon
+    </text>
+    
+    <!-- Different User or Same User -->
+    <g transform="translate(20, 70)">
+      <rect x="0" y="0" width="280" height="50" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+      <text x="50" y="30" fill="white" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="500">👤 Same/Other Dev</text>
+      <text x="215" y="30" fill="#64748b" font-family="Inter, system-ui, sans-serif" font-size="11">continues work</text>
+    </g>
+    
+    <!-- LLM/Agent -->
+    <g transform="translate(20, 135)">
+      <rect x="0" y="0" width="280" height="70" rx="10" fill="#1e293b" stroke="#22c55e" stroke-width="2"/>
+      <text x="140" y="25" fill="#22c55e" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="600">🤖 AI Agent (Claude/GPT)</text>
+      <text x="140" y="48" fill="#94a3b8" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="11">Discovers previous knowledge</text>
+      <text x="140" y="62" fill="#64748b" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10">"Found related artifact!"</text>
+    </g>
+    
+    <!-- MCP Server -->
+    <g transform="translate(20, 220)">
+      <rect x="0" y="0" width="280" height="60" rx="10" fill="#0f172a" stroke="#22c55e" stroke-width="1.5" stroke-dasharray="4,2"/>
+      <text x="140" y="25" fill="#22c55e" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="600">⚡ MCP Server + KCP Bridge</text>
+      <text x="140" y="45" fill="#64748b" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10">kcp_query, kcp_get, kcp_publish</text>
+    </g>
+    
+    <!-- KCP Client -->
+    <g transform="translate(20, 295)">
+      <rect x="0" y="0" width="280" height="70" rx="10" fill="#1e293b" stroke="url(#kcpGradient)" stroke-width="2" filter="url(#softGlow)"/>
+      <text x="140" y="25" fill="#8b5cf6" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="600">🔐 KCP Client</text>
+      <text x="140" y="45" fill="#94a3b8" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10">Query → Verify → Use</text>
+      <text x="140" y="60" fill="#6366f1" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9">Retrieved: artifact:sha256:a1b2c3...</text>
+    </g>
+    
+    <!-- Arrows inside Session 2 -->
+    <g stroke="#475569" stroke-width="1.5" fill="none">
+      <path d="M 160 120 L 160 135" marker-end="url(#arrowMCP)"/>
+      <path d="M 160 205 L 160 220" marker-end="url(#arrowMCP)"/>
+      <path d="M 160 280 L 160 295" marker-end="url(#arrowKCP)"/>
+    </g>
+    
+    <!-- Status Badge -->
+    <g transform="translate(200, 380)">
+      <rect x="0" y="0" width="100" height="24" rx="12" fill="#6366f1" fill-opacity="0.2"/>
+      <text x="50" y="16" fill="#8b5cf6" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10" font-weight="500">✓ Retrieved</text>
+    </g>
+  </g>
+  
+  <!-- ==================== DATA FLOW ARROWS ==================== -->
+  <!-- Session 1 to KCP Network -->
+  <g>
+    <path d="M 380 350 C 420 350, 420 320, 460 320" 
+          stroke="#8b5cf6" stroke-width="3" fill="none" 
+          stroke-dasharray="8,4" marker-end="url(#arrowKCP)">
+      <animate attributeName="stroke-dashoffset" from="24" to="0" dur="1s" repeatCount="indefinite"/>
+    </path>
+    <text x="400" y="300" fill="#8b5cf6" font-family="Inter, system-ui, sans-serif" font-size="10" font-weight="500">PUBLISH</text>
+  </g>
+  
+  <!-- KCP Network to Session 2 -->
+  <g>
+    <path d="M 740 320 C 780 320, 780 350, 820 350" 
+          stroke="#8b5cf6" stroke-width="3" fill="none" 
+          stroke-dasharray="8,4" marker-end="url(#arrowKCP)">
+      <animate attributeName="stroke-dashoffset" from="24" to="0" dur="1s" repeatCount="indefinite"/>
+    </path>
+    <text x="770" y="300" fill="#8b5cf6" font-family="Inter, system-ui, sans-serif" font-size="10" font-weight="500">QUERY</text>
+  </g>
+  
+  <!-- Time indicator -->
+  <g transform="translate(440, 530)">
+    <line x1="0" y1="0" x2="320" y2="0" stroke="#475569" stroke-width="2"/>
+    <circle cx="0" cy="0" r="8" fill="#22c55e"/>
+    <circle cx="160" cy="0" r="6" fill="#6366f1"/>
+    <circle cx="320" cy="0" r="8" fill="#22c55e"/>
+    
+    <text x="0" y="25" fill="#94a3b8" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10">Session 1</text>
+    <text x="0" y="38" fill="#64748b" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9">09:00 AM</text>
+    
+    <text x="160" y="25" fill="#8b5cf6" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10" font-weight="500">Knowledge Persisted</text>
+    <text x="160" y="38" fill="#64748b" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9">in KCP Network</text>
+    
+    <text x="320" y="25" fill="#94a3b8" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10">Session 2</text>
+    <text x="320" y="38" fill="#64748b" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9">02:00 PM</text>
+  </g>
+  
+  <!-- Bottom footer -->
+  <g transform="translate(0, 590)">
+    <rect x="0" y="0" width="1200" height="37" fill="#0f172a" opacity="0.9"/>
+    <text x="600" y="24" fill="#64748b" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="12">
+      github.com/kcp-protocol/kcp • Knowledge never lost between sessions • MIT License
+    </text>
+  </g>
+  
+  <!-- Decorative particles -->
+  <g opacity="0.4">
+    <circle cx="50" cy="580" r="2" fill="#6366f1"/>
+    <circle cx="1150" cy="580" r="2" fill="#6366f1"/>
+    <circle cx="600" cy="80" r="3" fill="#8b5cf6"/>
+  </g>
+</svg>
